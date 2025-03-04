@@ -59,11 +59,11 @@ export async function GET(request: Request) {
             message: 'Data updated successfully',
             timestamp: new Date().toISOString()
         });
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error during scheduled scraping:', error);
         return NextResponse.json({ 
             success: false,
-            error: error.message 
+            error: error instanceof Error ? error.message : 'An unknown error occurred'
         }, { status: 500 });
     }
 }

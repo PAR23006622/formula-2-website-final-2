@@ -73,7 +73,7 @@ export function RacePointsDistributionChart({
     if (!externalSelectedDrivers) {
       setSelectedDrivers(new Set(computedDrivers));
     }
-  }, [computedDrivers]);
+  }, [computedDrivers, externalSelectedDrivers]);
 
   // Update selected drivers when external selection changes
   useEffect(() => {
@@ -130,16 +130,13 @@ export function RacePointsDistributionChart({
       };
     });
 
-    const yearCalendar = calendarData[year as keyof typeof calendarData];
-    const locations = yearCalendar ? yearCalendar.races.map(race => race.location) : [];
-
     const chartData = {
-      labels: locations.slice(startRace - 1, endRace),
+      labels: raceLocations.slice(startRace - 1, endRace),
       datasets
     };
 
     return chartData;
-  }, [yearData, startRace, endRace, colorMap, selectedDrivers, raceLocations]);
+  }, [yearData, startRace, endRace, colorMap, selectedDrivers, raceLocations, year]);
 
   // Memoize chart options
   const options = useMemo(() => {
@@ -154,7 +151,7 @@ export function RacePointsDistributionChart({
           display: false
         },
         tooltip: {
-          mode: 'index',
+          mode: 'index' as const,
           intersect: false,
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
           titleColor: '#fff',

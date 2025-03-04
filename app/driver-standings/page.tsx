@@ -107,7 +107,7 @@ export default function DriverStandings() {
     }
 
     fetchData();
-  }, []);
+  }, [selectedYear]);
 
   if (loading) {
     return (

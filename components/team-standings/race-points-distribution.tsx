@@ -9,6 +9,19 @@ import "@/lib/chart-config";
 import teamStandings from '@/results/team-standings.json';
 import calendarData from '@/results/calendar.json';
 
+interface Team {
+  driverName: string;
+  teamName?: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface YearData {
+  year: number;
+  standings: Team[];
+}
+
 interface RacePointsDistributionChartProps {
   year: string;
   startRace: number;
@@ -92,31 +105,18 @@ export function RacePointsDistributionChart({
   // Prepare chart data
   const data = useMemo(() => {
     try {
-      const yearData = teamStandings.find(d => d.year.toString() === year);
+      const yearData = teamStandings.find(d => d.year.toString() === year) as YearData | undefined;
       if (!yearData) return null;
 
-      // Log the data structure to debug
-      console.log('Year data:', yearData);
-      console.log('First team data:', yearData.standings[0]);
-
-      // Check if we have the correct property names
-      const hasDriverName = 'driverName' in yearData.standings[0];
-      const hasTeamName = 'teamName' in yearData.standings[0];
-      console.log('Has driverName:', hasDriverName);
-      console.log('Has teamName:', hasTeamName);
-
-      // Use the correct property name based on what's available
-      const nameProperty = hasTeamName ? 'teamName' : 'driverName';
+      // Get the name to display (teamName if available, otherwise driverName)
+      const getDisplayName = (team: Team) => team.teamName || team.driverName;
       
-      const teamNames = yearData.standings.map(team => team[nameProperty]);
+      const teamNames = yearData.standings.map(getDisplayName);
       const colorMap = createTeamColorMap(teamNames);
       const currentSelectedTeams = externalSelectedTeams || selectedTeams;
       
       const datasets = yearData.standings.map(team => {
-        // Log the sprint and feature race scores to debug
-        console.log('Team:', team[nameProperty]);
-        console.log('Sprint scores:', team.sprintRaceScores);
-        console.log('Feature scores:', team.featureRaceScores);
+        const displayName = getDisplayName(team);
         
         const sprintPoints = Array.isArray(team.sprintRaceScores) 
           ? team.sprintRaceScores.map(Number) 
@@ -125,33 +125,26 @@ export function RacePointsDistributionChart({
           ? team.featureRaceScores.map(Number) 
           : [];
         
-        // Make sure we have valid arrays
         if (sprintPoints.length === 0 || featurePoints.length === 0) {
-          console.warn('Missing race scores for team:', team[nameProperty]);
+          console.warn('Missing race scores for team:', displayName);
         }
         
         const totalPoints = sprintPoints.map((sprint, index) => 
           sprint + (featurePoints[index] || 0)
         );
-
-        // Log the total points to debug
-        console.log('Total points:', totalPoints);
         
         const slicedPoints = totalPoints.slice(startRace - 1, endRace).map(points => 
-          points === 0 ? null : points // Convert 0 to null to hide the bar
+          points === 0 ? null : points
         );
-        
-        // Log the sliced points to debug
-        console.log('Sliced points:', slicedPoints);
 
         return {
-          label: team[nameProperty],
+          label: displayName,
           data: slicedPoints,
-          backgroundColor: colorMap[team[nameProperty]],
-          borderColor: colorMap[team[nameProperty]],
+          backgroundColor: colorMap[displayName],
+          borderColor: colorMap[displayName],
           borderWidth: 1,
           borderRadius: 4,
-          hidden: !currentSelectedTeams.has(team[nameProperty]),
+          hidden: !currentSelectedTeams.has(displayName),
         };
       });
       
@@ -179,7 +172,7 @@ export function RacePointsDistributionChart({
           display: false
         },
         tooltip: {
-          mode: 'index',
+          mode: 'index' as const,
           intersect: false,
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
           titleColor: '#fff',
@@ -200,6 +193,7 @@ export function RacePointsDistributionChart({
       },
       scales: {
         y: {
+          type: 'linear' as const,
           beginAtZero: true,
           grid: {
             color: gridColor,
@@ -210,12 +204,14 @@ export function RacePointsDistributionChart({
             color: textColor,
             font: {
               size: isMobile ? 8 : 10,
+              weight: 'normal' as const
             },
             padding: isMobile ? 0 : 2,
             maxTicksLimit: isMobile ? 6 : 8
-          },
+          }
         },
         x: {
+          type: 'category' as const,
           grid: {
             display: true,
             color: gridColor,
@@ -224,26 +220,27 @@ export function RacePointsDistributionChart({
           },
           ticks: {
             color: textColor,
-            maxRotation: 45,  // Change to 45 degrees to better display location names
-            minRotation: 45,  // Change to 45 degrees to better display location names
+            maxRotation: 45,
+            minRotation: 45,
             font: {
               size: isMobile ? 8 : 10,
-              weight: 'bold'
+              weight: 'bold' as const
             },
             padding: isMobile ? 2 : 4
           },
-          title: {  // Add a title for the x-axis
+          title: {
             display: true,
             text: 'Race Location',
             color: textColor,
             font: {
               size: isMobile ? 10 : 12,
+              weight: 'normal' as const
             }
           },
           border: {
             display: false
           }
-        },
+        }
       },
       layout: {
         padding: {

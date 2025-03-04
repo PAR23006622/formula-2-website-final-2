@@ -28,7 +28,7 @@ export default function TeamsDrivers() {
     if (!availableYears.includes(selectedYear)) {
       setSelectedYear(availableYears[0]);
     }
-  }, []);
+  }, [selectedYear]);
 
   return (
     <>

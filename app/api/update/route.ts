@@ -51,11 +51,11 @@ export async function GET() {
             message: 'Data updated successfully',
             timestamp: new Date().toISOString()
         });
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error during data update:', error);
         return NextResponse.json({ 
             success: false,
-            error: error.message 
+            error: error instanceof Error ? error.message : 'An unknown error occurred'
         }, { status: 500 });
     }
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import calendarData from "@/results/calendar.json";
 import { Card } from "@/components/ui/card";
 import { MapPin, Calendar } from "lucide-react";
+import Image from 'next/image';
 
 interface CalendarContentProps {
   defaultYear: string;
@@ -66,17 +67,19 @@ export function CalendarContent({ defaultYear }: CalendarContentProps) {
       {races.map((race, index) => {
         const countryCode = getCountryCode(race.location);
         return (
-          <Card key={index} className="overflow-hidden bg-white shadow-sm rounded-3xl">
+          <Card key={index} className="overflow-hidden bg-white dark:bg-[#1f2937] shadow-sm rounded-3xl dark:border-gray-800">
             <div className="text-center p-4">
               <h3 className="text-lg font-medium">Round {index + 1}</h3>
             </div>
             <div className="px-10 pb-4">
-              <div className="aspect-[3/2] w-full rounded-xl border overflow-hidden flex items-center justify-center">
-                <img
+              <div className="aspect-[3/2] w-full rounded-xl border dark:border-gray-800 overflow-hidden flex items-center justify-center relative">
+                <Image
                   src={`https://flagcdn.com/w640/${countryCode}.png`}
                   alt={`Flag of ${race.location}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                   loading="lazy"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               </div>
             </div>

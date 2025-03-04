@@ -4,7 +4,11 @@ import { Pie } from "react-chartjs-2";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
-export function PointsDistributionPieChart() {
+interface PointsDistributionPieChartProps {
+  year: string;
+}
+
+export function PointsDistributionPieChart({ year }: PointsDistributionPieChartProps) {
   const [data, setData] = useState<any>(null);
   const { theme } = useTheme();
   const [options, setOptions] = useState({});

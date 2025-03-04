@@ -1,9 +1,22 @@
 import puppeteer from 'puppeteer-core';
 import path from 'path';
 
+interface DriverStanding {
+    driverName: string;
+    totalPoints: string;
+    sprintRaceScores: string[];
+    featureRaceScores: string[];
+}
+
+interface YearData {
+    year: number;
+    title: string;
+    standings: DriverStanding[];
+}
+
 export async function getBrowserInstance() {
     return await puppeteer.launch({
-        headless: "new",
+        headless: true,
         executablePath: path.join(process.cwd(), 'node_modules', 'chromium', 'lib', 'chromium', 'chrome-linux', 'chrome'),
         args: [
             '--no-sandbox',
@@ -14,7 +27,7 @@ export async function getBrowserInstance() {
     });
 }
 
-export async function scrapeDriverStandings() {
+export async function scrapeDriverStandings(): Promise<YearData[]> {
     let browser;
     try {
         browser = await getBrowserInstance();
@@ -34,17 +47,18 @@ export async function scrapeDriverStandings() {
 
         const standingsData = await page.evaluate(() => {
             const rows = document.querySelectorAll('.table.table-bordered tbody tr');
-            const data = [];
+            const data: DriverStanding[] = [];
 
             rows.forEach(row => {
-                const driverName = row.querySelector('.visible-desktop-up')?.innerText.trim();
-                const totalPoints = row.querySelector('.total-points')?.innerText.trim();
+                const driverNameEl = row.querySelector('.visible-desktop-up') as HTMLElement;
+                const totalPointsEl = row.querySelector('.total-points') as HTMLElement;
                 const scores = row.querySelectorAll('.score');
-                const sprintRaceScores = [];
-                const featureRaceScores = [];
+                const sprintRaceScores: string[] = [];
+                const featureRaceScores: string[] = [];
 
                 scores.forEach((score, index) => {
-                    let scoreText = score.innerText.trim();
+                    const scoreEl = score as HTMLElement;
+                    let scoreText = scoreEl.innerText.trim();
                     if (scoreText === '-') scoreText = '0';
                     if (index % 2 === 0) {
                         sprintRaceScores.push(scoreText);
@@ -53,10 +67,10 @@ export async function scrapeDriverStandings() {
                     }
                 });
 
-                if (driverName) {
+                if (driverNameEl) {
                     data.push({
-                        driverName,
-                        totalPoints,
+                        driverName: driverNameEl.innerText.trim(),
+                        totalPoints: totalPointsEl?.innerText.trim() || '0',
                         sprintRaceScores,
                         featureRaceScores
                     });

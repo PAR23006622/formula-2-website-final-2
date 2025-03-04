@@ -4,7 +4,11 @@ import { Bar } from "react-chartjs-2";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
-export function TopDriversChart() {
+interface TopDriversChartProps {
+  year: string;
+}
+
+export function TopDriversChart({ year }: TopDriversChartProps) {
   const [data, setData] = useState<any>(null);
   const { theme } = useTheme();
   const [options, setOptions] = useState({});

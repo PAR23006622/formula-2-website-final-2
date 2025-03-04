@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import driverStandings from '@/results/driver-standings.json';
 
-export function RaceTypePointsChart() {
+interface RaceTypePointsChartProps {
+  year: string;
+}
+
+export function RaceTypePointsChart({ year }: RaceTypePointsChartProps) {
   const [data, setData] = useState<any>(null);
   const { theme } = useTheme();
   const [options, setOptions] = useState({});

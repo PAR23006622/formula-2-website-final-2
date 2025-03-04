@@ -23,7 +23,6 @@ const nextConfig = {
   },
   // Add experimental features for better data handling
   experimental: {
-    serverActions: true,
     serverComponentsExternalPackages: ['puppeteer']
   }
 };

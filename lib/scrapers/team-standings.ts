@@ -2,7 +2,20 @@ import puppeteer from 'puppeteer-core';
 import path from 'path';
 import { getBrowserInstance } from './driver-standings';
 
-export async function scrapeTeamStandings() {
+interface TeamStanding {
+    teamName: string;
+    totalPoints: string;
+    sprintRaceScores: string[];
+    featureRaceScores: string[];
+}
+
+interface YearData {
+    year: number;
+    title: string;
+    standings: TeamStanding[];
+}
+
+export async function scrapeTeamStandings(): Promise<YearData[]> {
     let browser;
     try {
         browser = await getBrowserInstance();
@@ -22,17 +35,23 @@ export async function scrapeTeamStandings() {
 
         const standingsData = await page.evaluate(() => {
             const rows = document.querySelectorAll('.table.table-bordered tbody tr');
-            const data = [];
+            const data: Array<{
+                teamName: string;
+                totalPoints: string;
+                sprintRaceScores: string[];
+                featureRaceScores: string[];
+            }> = [];
 
             rows.forEach(row => {
-                const teamName = row.querySelector('.visible-desktop-up')?.innerText.trim();
-                const totalPoints = row.querySelector('.total-points')?.innerText.trim();
+                const teamNameEl = row.querySelector('.visible-desktop-up') as HTMLElement;
+                const totalPointsEl = row.querySelector('.total-points') as HTMLElement;
                 const scores = row.querySelectorAll('.score');
-                const sprintRaceScores = [];
-                const featureRaceScores = [];
+                const sprintRaceScores: string[] = [];
+                const featureRaceScores: string[] = [];
 
                 scores.forEach((score, index) => {
-                    let scoreText = score.innerText.trim();
+                    const scoreEl = score as HTMLElement;
+                    let scoreText = scoreEl.innerText.trim();
                     if (scoreText === '-') scoreText = '0';
                     if (index % 2 === 0) {
                         sprintRaceScores.push(scoreText);
@@ -41,10 +60,10 @@ export async function scrapeTeamStandings() {
                     }
                 });
 
-                if (teamName) {
+                if (teamNameEl) {
                     data.push({
-                        teamName,
-                        totalPoints,
+                        teamName: teamNameEl.innerText.trim(),
+                        totalPoints: totalPointsEl?.innerText.trim() || '0',
                         sprintRaceScores,
                         featureRaceScores
                     });

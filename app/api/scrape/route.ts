@@ -53,11 +53,11 @@ export async function GET() {
             status: 'success',
             message: 'All data scraped successfully'
         });
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error during scraping:', error);
         return NextResponse.json({ 
             status: 'error',
-            message: error.message 
+            message: error instanceof Error ? error.message : 'An unknown error occurred'
         }, { status: 500 });
     }
 }

@@ -1,7 +1,18 @@
-import puppeteer from 'puppeteer-core';
+import puppeteer, { Page } from 'puppeteer-core';
 import { getBrowserInstance } from './driver-standings';
 
-export async function scrapeTeamsAndDrivers() {
+interface Team {
+    teamName: string;
+    drivers: string[];
+}
+
+interface YearData {
+    year: number;
+    title: string;
+    teams: Team[];
+}
+
+export async function scrapeTeamsAndDrivers(): Promise<YearData[]> {
     const urls = [
         'https://web.archive.org/web/20171201034903/http://www.fiaformula2.com/Teams-and-Drivers',
         'https://web.archive.org/web/20181109085950/http://www.fiaformula2.com/Teams-and-Drivers',
@@ -15,7 +26,7 @@ export async function scrapeTeamsAndDrivers() {
     ];
 
     const browser = await getBrowserInstance();
-    const allData = [];
+    const allData: YearData[] = [];
     let year = 2017;
 
     for (const url of urls) {
@@ -43,19 +54,21 @@ export async function scrapeTeamsAndDrivers() {
     return allData;
 }
 
-async function scrapeBefore2020(page: any) {
+async function scrapeBefore2020(page: Page) {
     return page.evaluate(() => {
-        const yearElement = document.querySelector('.c');
+        const yearElement = document.querySelector('.c') as HTMLElement;
         const year = yearElement ? yearElement.innerText.match(/\d{4}/) : null;
         const title = year ? `Teams & Drivers Formula 2 ${year[0]}` : 'Teams & Drivers Formula 2';
 
         const teamElements = document.querySelectorAll('.team-drivers');
         const teams = Array.from(teamElements).map(teamElement => {
-            const teamNameElement = teamElement.querySelector('.name') || teamElement.querySelector('.brand-link');
+            const teamNameElement = (teamElement.querySelector('.name') || teamElement.querySelector('.brand-link')) as HTMLElement | null;
             const teamName = teamNameElement ? teamNameElement.innerText.trim() : 'Unknown Team';
             
-            const drivers = Array.from(teamElement.querySelectorAll('.caption .name')).map(driverElement => {
-                return driverElement ? driverElement.innerText.trim() : 'Unknown Driver';
+            const driverElements = teamElement.querySelectorAll('.caption .name');
+            const drivers = Array.from(driverElements).map(driverElement => {
+                const driver = driverElement as HTMLElement;
+                return driver ? driver.innerText.trim() : 'Unknown Driver';
             });
 
             return { teamName, drivers };
@@ -67,19 +80,21 @@ async function scrapeBefore2020(page: any) {
     });
 }
 
-async function scrape2020Onwards(page: any) {
+async function scrape2020Onwards(page: Page) {
     return page.evaluate(() => {
-        const yearElement = document.querySelector('.c');   
+        const yearElement = document.querySelector('.c') as HTMLElement;
         const year = yearElement ? yearElement.innerText.match(/\d{4}/) : null;
         const title = year ? `Teams & Drivers Formula 2 ${year[0]}` : 'Teams & Drivers Formula 2';
 
         const teamElements = document.querySelectorAll('.wrapper');
         const teams = Array.from(teamElements).map(teamElement => {
-            const teamNameElement = teamElement.querySelector('.brand-link');
+            const teamNameElement = teamElement.querySelector('.brand-link') as HTMLElement | null;
             const teamName = teamNameElement ? teamNameElement.innerText.trim() : 'Unknown Team';
             
-            const drivers = Array.from(teamElement.querySelectorAll('.name-wrapper.has-link .name')).map(driverElement => {
-                return driverElement ? driverElement.innerText.trim() : 'Unknown Driver';
+            const driverElements = teamElement.querySelectorAll('.name-wrapper.has-link .name');
+            const drivers = Array.from(driverElements).map(driverElement => {
+                const driver = driverElement as HTMLElement;
+                return driver ? driver.innerText.trim() : 'Unknown Driver';
             });
 
             return { teamName, drivers };

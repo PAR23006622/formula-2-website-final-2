@@ -2,6 +2,18 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+interface Team {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface YearData {
+  year: number;
+  standings: Team[];
+}
+
 export async function GET() {
   try {
     const resultsDir = path.join(process.cwd(), 'results');
@@ -25,7 +37,7 @@ export async function GET() {
     }
 
     try {
-      const standingsData = JSON.parse(fileContent);
+      const standingsData = JSON.parse(fileContent) as YearData[];
       
       // Validate data structure
       if (!Array.isArray(standingsData) || standingsData.length === 0) {
@@ -33,13 +45,13 @@ export async function GET() {
       }
 
       // Validate each year's data structure
-      const validData = standingsData.every(yearData => 
+      const validData = standingsData.every((yearData: YearData) => 
         yearData && 
         typeof yearData.year === 'number' && 
         Array.isArray(yearData.standings) &&
-        yearData.standings.every(team => 
+        yearData.standings.every((team: Team) => 
           team && 
-          typeof team.driverName === 'string' && 
+          typeof team.teamName === 'string' && 
           typeof team.totalPoints === 'string' &&
           Array.isArray(team.sprintRaceScores) &&
           Array.isArray(team.featureRaceScores)

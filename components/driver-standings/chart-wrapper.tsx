@@ -11,10 +11,12 @@ export function ChartWrapper({ children }: ChartWrapperProps) {
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const currentRef = chartRef.current;
+    
     // Cleanup function to destroy any existing charts when component unmounts
     return () => {
-      if (chartRef.current) {
-        const canvases = chartRef.current.getElementsByTagName('canvas');
+      if (currentRef) {
+        const canvases = Array.from(currentRef.getElementsByTagName('canvas'));
         for (const canvas of canvases) {
           const chartInstance = Chart.getChart(canvas);
           if (chartInstance) {

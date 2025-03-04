@@ -102,7 +102,7 @@ export function FeaturedCharts() {
         <CardHeader>
           <CardTitle>Championship Progress</CardTitle>
           <ChartDescription>
-            This graph shows how drivers accumulate points throughout the season. Each line represents a driver's total points after each race, helping you track their championship battle and momentum shifts.
+            This graph shows how drivers accumulate points throughout the season. Each line represents a driver&apos;s total points after each race, helping you track their championship battle and momentum shifts.
           </ChartDescription>
         </CardHeader>
         <CardContent className="chart-content">
@@ -116,7 +116,7 @@ export function FeaturedCharts() {
         <CardHeader>
           <CardTitle>Driver Performance Analysis</CardTitle>
           <ChartDescription>
-            A radar chart comparing drivers across five key performance areas. The larger the area covered, the stronger the overall performance. This visualization helps identify drivers' strengths and weaknesses in different aspects of racing.
+            A radar chart comparing drivers across five key performance areas. The larger the area covered, the stronger the overall performance. This visualization helps identify drivers&apos; strengths and weaknesses in different aspects of racing.
           </ChartDescription>
         </CardHeader>
         <CardContent className="chart-content">

@@ -20,7 +20,7 @@ import teamStandings from '@/results/team-standings.json';
 
 export default function TeamStandings() {
   const [selectedYear, setSelectedYear] = useState("2024");
-  const years = [...new Set(teamStandings.map(d => d.year.toString()))].sort().reverse();
+  const years = Array.from(new Set(teamStandings.map(d => d.year.toString()))).sort((a, b) => b.localeCompare(a));
   const [selectedTeams, setSelectedTeams] = useState<Set<string>>(new Set());
   const [allTeams, setAllTeams] = useState<string[]>([]);
 

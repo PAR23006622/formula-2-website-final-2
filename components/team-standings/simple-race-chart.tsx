@@ -82,14 +82,20 @@ export function SimpleRaceChart({
     // Find races where at least one team scored points
     const racesWithPoints = selectedLocations.map((location, index) => ({
       location,
-      hasPoints: datasets.some(dataset => dataset.data[index] > 0)
+      hasPoints: datasets.some(dataset => {
+        const value = dataset.data[index];
+        return typeof value === 'number' && value > 0;
+      })
     })).filter(race => race.hasPoints);
 
     // Update datasets to only include races with points
     const filteredDatasets = datasets.map(dataset => ({
       ...dataset,
-      data: dataset.data.filter((_, index) => 
-        datasets.some(d => d.data[index] > 0)
+      data: dataset.data.filter((value, index) => 
+        datasets.some(d => {
+          const points = d.data[index];
+          return typeof points === 'number' && points > 0;
+        })
       )
     }));
 
@@ -119,7 +125,7 @@ export function SimpleRaceChart({
           bodyColor: '#fff',
           callbacks: {
             label: function(context: any) {
-              if (!context.raw) return null;
+              if (context.raw === null || context.raw === undefined) return '';
               return `${context.dataset.label}: ${context.raw} points`;
             }
           }
@@ -127,27 +133,41 @@ export function SimpleRaceChart({
       },
       scales: {
         y: {
+          type: 'linear' as const,
           beginAtZero: true,
           grid: {
             color: gridColor
           },
           ticks: {
-            color: textColor
+            color: textColor,
+            font: {
+              size: 10,
+              weight: 'normal' as const
+            }
           }
         },
         x: {
+          type: 'category' as const,
           grid: {
             color: gridColor
           },
           ticks: {
             color: textColor,
             maxRotation: 45,
-            minRotation: 45
+            minRotation: 45,
+            font: {
+              size: 10,
+              weight: 'normal' as const
+            }
           },
           title: {
             display: true,
             text: 'Race Location',
-            color: textColor
+            color: textColor,
+            font: {
+              size: 12,
+              weight: 'normal' as const
+            }
           }
         }
       }
