@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 201 100% 41%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 201 100% 41%;
+    --chart-1: 348 83% 47%;
+    --chart-2: 207 90% 54%;
+    --chart-3: 142 71% 45%;
+    --chart-4: 27 96% 61%;
+    --chart-5: 271 81% 56%;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 201 100% 41%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 201 100% 41%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html, body {
+    @apply h-full overflow-x-hidden;
+  }
+  body {
+    @apply bg-gradient-to-br from-background to-background/80 text-foreground;
+  }
+}
+
+@layer components {
+  .chart-grid {
+    @apply grid gap-6 w-full max-w-[1400px] mx-auto;
+  }
+
+  .chart-card {
+    @apply flex flex-col h-[400px] w-full bg-white dark:bg-gray-800 rounded-2xl p-6 transition-all duration-300 shadow-lg hover:shadow-[0_0_30px_rgba(0,144,208,0.3)] dark:hover:shadow-[0_0_30px_rgba(0,144,208,0.15)];
+  }
+
+  .chart-content {
+    @apply flex-1 w-full h-full relative;
+  }
+
+  .chart-wrapper {
+    @apply absolute inset-0 flex items-center justify-center;
+  }
+
+  /* Add styles for line charts */
+  .chart-card.h-[600px] {
+    @apply md:h-[600px];
+  }
+
+  @media (max-width: 1000px) {
+    .chart-grid {
+      grid-template-columns: minmax(0, 1fr);
+      @apply px-4;
+    }
+    
+    .chart-card {
+      height: 350px;
+      @apply w-full mx-auto;
+    }
+
+    .chart-card.h-[600px] {
+      height: 400px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .chart-card {
+      @apply p-4;
+    }
+    
+    .chart-content {
+      @apply -mx-2;
+    }
+  }
+}
+
+/* Mobile menu animations */
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.slide-out {
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.ease-spring {
+  transition-timing-function: cubic-bezier(0.87, 0, 0.13, 1);
+}

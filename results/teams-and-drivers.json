@@ -1,0 +1,726 @@
+[
+  {
+    "year": 2017,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "Charles Leclerc",
+          "Antonio Fuoco"
+        ]
+      },
+      {
+        "teamName": "Racing Engineering",
+        "drivers": [
+          "Nyck de Vries",
+          "Gustav Malja"
+        ]
+      },
+      {
+        "teamName": "RUSSIAN TIME",
+        "drivers": [
+          "Luca Ghiotto",
+          "Artem Markelov"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "Nobuharu Matsushita",
+          "Alexander Albon"
+        ]
+      },
+      {
+        "teamName": "DAMS",
+        "drivers": [
+          "Oliver Rowland",
+          "Nicholas Latifi"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "Lando Norris",
+          "Álex Palou"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "Sérgio Sette Câmara",
+          "Jordan King"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "Nabil Jeffri",
+          "Santino Ferrucci"
+        ]
+      },
+      {
+        "teamName": "Rapax",
+        "drivers": [
+          "Louis Delétraz",
+          "Roberto Merhi"
+        ]
+      },
+      {
+        "teamName": "Pertamina Arden",
+        "drivers": [
+          "Norman Nato",
+          "Sean Gelael"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2018,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "RUSSIAN TIME",
+        "drivers": [
+          "Artem Markelov",
+          "Tadasuke Makino"
+        ]
+      },
+      {
+        "teamName": "PERTAMINA PREMA Theodore Racing",
+        "drivers": [
+          "Sean Gelael",
+          "Nyck de Vries"
+        ]
+      },
+      {
+        "teamName": "DAMS",
+        "drivers": [
+          "Alexander Albon",
+          "Nicholas Latifi"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "Jack Aitken",
+          "George Russell"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "Dorian Boccolacci",
+          "Niko Kari"
+        ]
+      },
+      {
+        "teamName": "BWT Arden",
+        "drivers": [
+          "Maximilian Günther",
+          "Nirei Fukuzumi"
+        ]
+      },
+      {
+        "teamName": "Campos Vexatec Racing",
+        "drivers": [
+          "Luca Ghiotto",
+          "Roberto Merhi"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "Arjun Maini",
+          "Alessio Lorandi"
+        ]
+      },
+      {
+        "teamName": "Carlin",
+        "drivers": [
+          "Sérgio Sette Câmara",
+          "Lando Norris"
+        ]
+      },
+      {
+        "teamName": "Charouz Racing System",
+        "drivers": [
+          "Louis Delétraz",
+          "Antonio Fuoco"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2019,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "Carlin",
+        "drivers": [
+          "Louis Delétraz",
+          "Nobuharu Matsushita"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "Nikita Mazepin",
+          "Nyck de Vries"
+        ]
+      },
+      {
+        "teamName": "DAMS",
+        "drivers": [
+          "Sérgio Sette Câmara",
+          "Nicholas Latifi"
+        ]
+      },
+      {
+        "teamName": "UNI-Virtuosi Racing",
+        "drivers": [
+          "Guanyu Zhou",
+          "Luca Ghiotto"
+        ]
+      },
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "Mick Schumacher",
+          "Sean Gelael"
+        ]
+      },
+      {
+        "teamName": "Sauber Junior Team by Charouz",
+        "drivers": [
+          "Callum Ilott",
+          "Juan Manuel Correa"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "Marino Sato",
+          "Jack Aitken"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "Jordan King",
+          "Mahaveer Raghunathan"
+        ]
+      },
+      {
+        "teamName": "BWT Arden",
+        "drivers": [
+          "Tatiana Calderón",
+          "Anthoine Hubert"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "Giuliano Alesi",
+          "Ralph Boschung"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2020,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "DAMS",
+        "drivers": [
+          "S. Gelael",
+          "D. Ticktum"
+        ]
+      },
+      {
+        "teamName": "UNI-Virtuosi Racing",
+        "drivers": [
+          "G. Zhou",
+          "C. Ilott"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "M. Armstrong",
+          "C. Lundgaard"
+        ]
+      },
+      {
+        "teamName": "Carlin",
+        "drivers": [
+          "Y. Tsunoda",
+          "J. Daruvala"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "R. Boschung",
+          "G. Samaia"
+        ]
+      },
+      {
+        "teamName": "Charouz Racing System",
+        "drivers": [
+          "L. Delétraz",
+          "P. Piquet"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "G. Alesi",
+          "F. Drugovich"
+        ]
+      },
+      {
+        "teamName": "BWT HWA RACELAB",
+        "drivers": [
+          "A. Markelov",
+          "T. Pourchaire"
+        ]
+      },
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "M. Schumacher",
+          "R. Shwartzman"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "R. Nissany",
+          "M. Sato"
+        ]
+      },
+      {
+        "teamName": "Hitech Grand Prix",
+        "drivers": [
+          "N. Mazepin",
+          "L. Ghiotto"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2021,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "R. Shwartzman",
+          "O. Piastri"
+        ]
+      },
+      {
+        "teamName": "UNI-Virtuosi",
+        "drivers": [
+          "G. Zhou",
+          "F. Drugovich"
+        ]
+      },
+      {
+        "teamName": "Carlin",
+        "drivers": [
+          "D. Ticktum",
+          "J. Daruvala"
+        ]
+      },
+      {
+        "teamName": "Hitech Grand Prix",
+        "drivers": [
+          "L. Lawson",
+          "J. Vips"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "C. Lundgaard",
+          "T. Pourchaire"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "J. Doohan",
+          "C. Novalak"
+        ]
+      },
+      {
+        "teamName": "Charouz Racing System",
+        "drivers": [
+          "E. Fittipaldi",
+          "G. Samaia"
+        ]
+      },
+      {
+        "teamName": "DAMS",
+        "drivers": [
+          "R. Nissany",
+          "M. Armstrong"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "O. Caldwell",
+          "R. Boschung"
+        ]
+      },
+      {
+        "teamName": "HWA RACELAB",
+        "drivers": [
+          "L. Sargeant",
+          "A. Deledda"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "B. Viscaal",
+          "M. Sato"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2022,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "D. Hauger",
+          "J. Daruvala"
+        ]
+      },
+      {
+        "teamName": "Virtuosi Racing",
+        "drivers": [
+          "J. Doohan",
+          "M. Sato"
+        ]
+      },
+      {
+        "teamName": "Carlin",
+        "drivers": [
+          "L. Lawson",
+          "L. Sargeant"
+        ]
+      },
+      {
+        "teamName": "Hitech Grand Prix",
+        "drivers": [
+          "M. Armstrong",
+          "J. Vips"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "F. Vesti",
+          "T. Pourchaire"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "F. Drugovich",
+          "C. Novalak"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "O. Caldwell",
+          "R. Boschung"
+        ]
+      },
+      {
+        "teamName": "DAMS",
+        "drivers": [
+          "R. Nissany",
+          "A. Iwasa"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "R. Verschoor",
+          "Z. Maloney"
+        ]
+      },
+      {
+        "teamName": "Charouz Racing System",
+        "drivers": [
+          "E. Fittipaldi",
+          "T. Calderón"
+        ]
+      },
+      {
+        "teamName": "Van Amersfoort Racing",
+        "drivers": [
+          "J. Correa",
+          "A. Cordeel"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2023,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "D. Hauger",
+          "F. Colapinto"
+        ]
+      },
+      {
+        "teamName": "Rodin Carlin",
+        "drivers": [
+          "Z. Maloney",
+          "E. Fittipaldi"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "T. Pourchaire",
+          "V. Martins"
+        ]
+      },
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "F. Vesti",
+          "O. Bearman"
+        ]
+      },
+      {
+        "teamName": "Hitech Pulse-Eight",
+        "drivers": [
+          "J. Crawford",
+          "I. Hadjar"
+        ]
+      },
+      {
+        "teamName": "DAMS",
+        "drivers": [
+          "A. Iwasa",
+          "A. Leclerc"
+        ]
+      },
+      {
+        "teamName": "Invicta Virtuosi Racing",
+        "drivers": [
+          "J. Doohan",
+          "A. Cordeel"
+        ]
+      },
+      {
+        "teamName": "PHM Racing",
+        "drivers": [
+          "R. Nissany",
+          "J. Mason"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "R. Stanek",
+          "P. Aron"
+        ]
+      },
+      {
+        "teamName": "Van Amersfoort Racing",
+        "drivers": [
+          "R. Verschoor",
+          "J. Correa"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "K. Maini",
+          "R. Boschung"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2024,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "V. Martins",
+          "L. Browning"
+        ]
+      },
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "O. Bearman",
+          "A. Antonelli"
+        ]
+      },
+      {
+        "teamName": "Rodin Motorsport",
+        "drivers": [
+          "L. Fornaroli",
+          "R. Miyata"
+        ]
+      },
+      {
+        "teamName": "DAMS Lucas Oil",
+        "drivers": [
+          "J. Crawford",
+          "D. Beganovic"
+        ]
+      },
+      {
+        "teamName": "Invicta Racing",
+        "drivers": [
+          "K. Maini",
+          "G. Bortoleto"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "R. Verschoor",
+          "O. Goethe"
+        ]
+      },
+      {
+        "teamName": "Van Amersfoort Racing",
+        "drivers": [
+          "J. Bennett",
+          "R. Villagómez"
+        ]
+      },
+      {
+        "teamName": "Hitech Pulse-Eight",
+        "drivers": [
+          "A. Cordeel",
+          "P. Aron"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "I. Hadjar",
+          "J. Martí"
+        ]
+      },
+      {
+        "teamName": "Trident",
+        "drivers": [
+          "M. Esterson",
+          "C. Mansell"
+        ]
+      },
+      {
+        "teamName": "AIX Racing",
+        "drivers": [
+          "J. Dürksen",
+          "C. Shields"
+        ]
+      }
+    ]
+  },
+  {
+    "year": 2025,
+    "title": "Teams & Drivers Formula 2",
+    "teams": [
+      {
+        "teamName": "Invicta Racing",
+        "drivers": [
+          "L. Fornaroli",
+          "R. Stanek"
+        ]
+      },
+      {
+        "teamName": "Campos Racing",
+        "drivers": [
+          "J. Martí",
+          "A. Lindblad"
+        ]
+      },
+      {
+        "teamName": "MP Motorsport",
+        "drivers": [
+          "O. Goethe",
+          "R. Verschoor"
+        ]
+      },
+      {
+        "teamName": "Hitech TGR",
+        "drivers": [
+          "L. Browning",
+          "D. Beganovic"
+        ]
+      },
+      {
+        "teamName": "PREMA Racing",
+        "drivers": [
+          "S. Montoya",
+          "G. Minì"
+        ]
+      },
+      {
+        "teamName": "DAMS Lucas Oil",
+        "drivers": [
+          "J. Crawford",
+          "K. Maini"
+        ]
+      },
+      {
+        "teamName": "ART Grand Prix",
+        "drivers": [
+          "R. Miyata"
+        ]
+      },
+      {
+        "teamName": "Rodin Motorsport",
+        "drivers": [
+          "C. Mansell",
+          "A. Dunne"
+        ]
+      },
+      {
+        "teamName": "AIX Racing",
+        "drivers": [
+          "J. Dürksen",
+          "C. Shields"
+        ]
+      },
+      {
+        "teamName": "TRIDENT",
+        "drivers": [
+          "S. Meguetounif",
+          "M. Esterson"
+        ]
+      },
+      {
+        "teamName": "Van Amersfoort Racing",
+        "drivers": [
+          "J. Bennett"
+        ]
+      }
+    ]
+  }
+]

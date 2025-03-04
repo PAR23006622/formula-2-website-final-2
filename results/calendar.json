@@ -1,0 +1,624 @@
+{
+  "2017": {
+    "title": "Calendar Formula 2 2017",
+    "races": [
+      {
+        "startDate": "14",
+        "endDate": "16",
+        "month": "April",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "12",
+        "endDate": "14",
+        "month": "May",
+        "location": "Barcelona"
+      },
+      {
+        "startDate": "25",
+        "endDate": "27",
+        "month": "May",
+        "location": "Monte Carlo"
+      },
+      {
+        "startDate": "23",
+        "endDate": "25",
+        "month": "June",
+        "location": "Baku"
+      },
+      {
+        "startDate": "07",
+        "endDate": "09",
+        "month": "July",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "13",
+        "endDate": "16",
+        "month": "July",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "28",
+        "endDate": "30",
+        "month": "July",
+        "location": "Budapest"
+      },
+      {
+        "startDate": "25",
+        "endDate": "27",
+        "month": "August",
+        "location": "Spa-Francorchamps"
+      },
+      {
+        "startDate": "01",
+        "endDate": "03",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "06",
+        "endDate": "08",
+        "month": "October",
+        "location": "Jerez de la Frontera"
+      },
+      {
+        "startDate": "24",
+        "endDate": "26",
+        "month": "November",
+        "location": "Yas Island"
+      }
+    ]
+  },
+  "2018": {
+    "title": "Calendar Formula 2 2018",
+    "races": [
+      {
+        "startDate": "06",
+        "endDate": "08",
+        "month": "April",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "27",
+        "endDate": "29",
+        "month": "April",
+        "location": "Baku"
+      },
+      {
+        "startDate": "11",
+        "endDate": "13",
+        "month": "May",
+        "location": "Barcelona"
+      },
+      {
+        "startDate": "24",
+        "endDate": "26",
+        "month": "May",
+        "location": "Monte Carlo"
+      },
+      {
+        "startDate": "22",
+        "endDate": "24",
+        "month": "June",
+        "location": "Le Castellet"
+      },
+      {
+        "startDate": "29",
+        "endDate": "01",
+        "month": "July",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "06",
+        "endDate": "08",
+        "month": "July",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "27",
+        "endDate": "29",
+        "month": "July",
+        "location": "Budapest"
+      },
+      {
+        "startDate": "24",
+        "endDate": "26",
+        "month": "August",
+        "location": "Spa-Francorchamps"
+      },
+      {
+        "startDate": "31",
+        "endDate": "02",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "28",
+        "endDate": "30",
+        "month": "September",
+        "location": "Sochi"
+      },
+      {
+        "startDate": "23",
+        "endDate": "25",
+        "month": "November",
+        "location": "Yas Island"
+      }
+    ]
+  },
+  "2019": {
+    "title": "Calendar Formula 2 2019",
+    "races": [
+      {
+        "startDate": "29",
+        "endDate": "31",
+        "month": "March",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "26",
+        "endDate": "28",
+        "month": "April",
+        "location": "Baku"
+      },
+      {
+        "startDate": "10",
+        "endDate": "12",
+        "month": "May",
+        "location": "Barcelona"
+      },
+      {
+        "startDate": "23",
+        "endDate": "25",
+        "month": "May",
+        "location": "Monte Carlo"
+      },
+      {
+        "startDate": "21",
+        "endDate": "23",
+        "month": "June",
+        "location": "Le Castellet"
+      },
+      {
+        "startDate": "28",
+        "endDate": "30",
+        "month": "June",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "12",
+        "endDate": "14",
+        "month": "July",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "02",
+        "endDate": "04",
+        "month": "August",
+        "location": "Budapest"
+      },
+      {
+        "startDate": "30",
+        "endDate": "31",
+        "month": "August",
+        "location": "Spa-Francorchamps"
+      },
+      {
+        "startDate": "06",
+        "endDate": "08",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "27",
+        "endDate": "29",
+        "month": "September",
+        "location": "Sochi"
+      },
+      {
+        "startDate": "29",
+        "endDate": "01",
+        "month": "December",
+        "location": "Yas Island"
+      }
+    ]
+  },
+  "2020": {
+    "title": "Calendar Formula 2 2020",
+    "races": [
+      {
+        "startDate": "03",
+        "endDate": "05",
+        "month": "July",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "10",
+        "endDate": "12",
+        "month": "July",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "17",
+        "endDate": "19",
+        "month": "July",
+        "location": "Budapest"
+      },
+      {
+        "startDate": "31",
+        "endDate": "02",
+        "month": "August",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "07",
+        "endDate": "09",
+        "month": "August",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "14",
+        "endDate": "16",
+        "month": "August",
+        "location": "Barcelona"
+      },
+      {
+        "startDate": "28",
+        "endDate": "30",
+        "month": "August",
+        "location": "Spa-Francorchamps"
+      },
+      {
+        "startDate": "04",
+        "endDate": "06",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "11",
+        "endDate": "13",
+        "month": "September",
+        "location": "Mugello"
+      },
+      {
+        "startDate": "25",
+        "endDate": "27",
+        "month": "September",
+        "location": "Sochi"
+      },
+      {
+        "startDate": "27",
+        "endDate": "29",
+        "month": "November",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "04",
+        "endDate": "06",
+        "month": "December",
+        "location": "Sakhir"
+      }
+    ]
+  },
+  "2021": {
+    "title": "Calendar Formula 2 2021",
+    "races": [
+      {
+        "startDate": "26",
+        "endDate": "28",
+        "month": "March",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "20",
+        "endDate": "22",
+        "month": "May",
+        "location": "Monte Carlo"
+      },
+      {
+        "startDate": "04",
+        "endDate": "06",
+        "month": "June",
+        "location": "Baku"
+      },
+      {
+        "startDate": "16",
+        "endDate": "18",
+        "month": "July",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "10",
+        "endDate": "12",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "24",
+        "endDate": "26",
+        "month": "September",
+        "location": "Sochi"
+      },
+      {
+        "startDate": "03",
+        "endDate": "05",
+        "month": "December",
+        "location": "Jeddah"
+      },
+      {
+        "startDate": "10",
+        "endDate": "12",
+        "month": "December",
+        "location": "Yas Island"
+      }
+    ]
+  },
+  "2022": {
+    "title": "Calendar Formula 2 2022",
+    "races": [
+      {
+        "startDate": "18",
+        "endDate": "20",
+        "month": "March",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "25",
+        "endDate": "27",
+        "month": "March",
+        "location": "Jeddah"
+      },
+      {
+        "startDate": "22",
+        "endDate": "24",
+        "month": "April",
+        "location": "Imola"
+      },
+      {
+        "startDate": "20",
+        "endDate": "22",
+        "month": "May",
+        "location": "Barcelona"
+      },
+      {
+        "startDate": "26",
+        "endDate": "29",
+        "month": "May",
+        "location": "Monte Carlo"
+      },
+      {
+        "startDate": "10",
+        "endDate": "12",
+        "month": "June",
+        "location": "Baku"
+      },
+      {
+        "startDate": "01",
+        "endDate": "03",
+        "month": "July",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "08",
+        "endDate": "10",
+        "month": "July",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "22",
+        "endDate": "24",
+        "month": "July",
+        "location": "Le Castellet"
+      },
+      {
+        "startDate": "29",
+        "endDate": "31",
+        "month": "July",
+        "location": "Budapest"
+      },
+      {
+        "startDate": "26",
+        "endDate": "28",
+        "month": "August",
+        "location": "Spa-Francorchamps"
+      },
+      {
+        "startDate": "02",
+        "endDate": "04",
+        "month": "September",
+        "location": "Zandvoort"
+      },
+      {
+        "startDate": "09",
+        "endDate": "11",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "18",
+        "endDate": "20",
+        "month": "November",
+        "location": "Yas Island"
+      }
+    ]
+  },
+  "2023": {
+    "title": "Calendar Formula 2 2023",
+    "races": [
+      {
+        "startDate": "03",
+        "endDate": "05",
+        "month": "March",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "17",
+        "endDate": "19",
+        "month": "March",
+        "location": "Jeddah"
+      },
+      {
+        "startDate": "31",
+        "endDate": "02",
+        "month": "April",
+        "location": "Melbourne"
+      },
+      {
+        "startDate": "28",
+        "endDate": "30",
+        "month": "April",
+        "location": "Baku"
+      },
+      {
+        "startDate": "19",
+        "endDate": "21",
+        "month": "May",
+        "location": "Imola"
+      },
+      {
+        "startDate": "25",
+        "endDate": "28",
+        "month": "May",
+        "location": "Monte Carlo"
+      },
+      {
+        "startDate": "02",
+        "endDate": "04",
+        "month": "June",
+        "location": "Barcelona"
+      },
+      {
+        "startDate": "30",
+        "endDate": "02",
+        "month": "July",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "07",
+        "endDate": "09",
+        "month": "July",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "21",
+        "endDate": "23",
+        "month": "July",
+        "location": "Budapest"
+      },
+      {
+        "startDate": "28",
+        "endDate": "30",
+        "month": "July",
+        "location": "Spa-Francorchamps"
+      },
+      {
+        "startDate": "25",
+        "endDate": "27",
+        "month": "August",
+        "location": "Zandvoort"
+      },
+      {
+        "startDate": "01",
+        "endDate": "03",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "24",
+        "endDate": "26",
+        "month": "November",
+        "location": "Yas Island"
+      }
+    ]
+  },
+  "2024": {
+    "title": "Calendar Formula 2 2024",
+    "races": [
+      {
+        "startDate": "29",
+        "endDate": "02",
+        "month": "March",
+        "location": "Sakhir"
+      },
+      {
+        "startDate": "07",
+        "endDate": "09",
+        "month": "March",
+        "location": "Jeddah"
+      },
+      {
+        "startDate": "22",
+        "endDate": "24",
+        "month": "March",
+        "location": "Melbourne"
+      },
+      {
+        "startDate": "17",
+        "endDate": "19",
+        "month": "May",
+        "location": "Imola"
+      },
+      {
+        "startDate": "23",
+        "endDate": "26",
+        "month": "May",
+        "location": "Monte Carlo"
+      },
+      {
+        "startDate": "21",
+        "endDate": "23",
+        "month": "June",
+        "location": "Barcelona"
+      },
+      {
+        "startDate": "28",
+        "endDate": "30",
+        "month": "June",
+        "location": "Spielberg"
+      },
+      {
+        "startDate": "05",
+        "endDate": "07",
+        "month": "July",
+        "location": "Silverstone"
+      },
+      {
+        "startDate": "19",
+        "endDate": "21",
+        "month": "July",
+        "location": "Budapest"
+      },
+      {
+        "startDate": "26",
+        "endDate": "28",
+        "month": "July",
+        "location": "Spa-Francorchamps"
+      },
+      {
+        "startDate": "30",
+        "endDate": "01",
+        "month": "September",
+        "location": "Monza"
+      },
+      {
+        "startDate": "13",
+        "endDate": "15",
+        "month": "September",
+        "location": "Baku"
+      },
+      {
+        "startDate": "29",
+        "endDate": "01",
+        "month": "December",
+        "location": "Lusail"
+      },
+      {
+        "startDate": "06",
+        "endDate": "08",
+        "month": "December",
+        "location": "Yas Island"
+      }
+    ]
+  }
+}
