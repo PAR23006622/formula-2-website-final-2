@@ -196,8 +196,6 @@ export function RacePointsDistributionChart({
           },
           ticks: {
             color: textColor,
-            maxRotation: isMobile ? 45 : 60,
-            minRotation: isMobile ? 45 : 60,
             font: {
               size: isMobile ? 8 : 9,
             },
@@ -207,7 +205,7 @@ export function RacePointsDistributionChart({
           },
           title: {
             display: true,
-            text: 'Race Location',
+            text: '',
             color: textColor,
             font: {
               size: isMobile ? 10 : 12,

@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChartContainer } from "@/components/driver-standings/chart-container";
+import { ChartContainer, LargeChartContainer } from "@/components/driver-standings/chart-container";
 import { TotalPointsChart } from "@/components/driver-standings/total-points";
 import { RaceTypePointsChart } from "@/components/driver-standings/race-type-points";
 import { CumulativePointsChart } from "@/components/driver-standings/cumulative-points";
@@ -187,17 +187,35 @@ export default function DriverStandings() {
               </div>
             </div>
             
-            <ChartContainer
-              title=""
-              description="Track how drivers accumulate championship points throughout the season."
-            >
-              <CumulativePointsChart 
-                year={selectedYear} 
+            <div className="card p-4 rounded-lg border bg-white text-card-foreground shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 h-[570px] dark:bg-[#1f2937] dark:border-gray-800">
+              <div className="mb-4">
+                <p className="text-muted-foreground text-sm">
+                  Track how drivers accumulate championship points throughout the season.
+                </p>
+              </div>
+              <div className="h-[500px]">
+                <CumulativePointsChart 
+                  year={selectedYear} 
+                  externalSelectedDrivers={selectedDrivers}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold py-4">Total Points Per Race - Drivers Performance Overview</h3>
+                <DriverFilter
+                  drivers={allDrivers}
+                  selectedDrivers={selectedDrivers}
+                  onToggleDriver={toggleDriver}
+                  onToggleAll={toggleAllDrivers}
+                />
+              </div>
+              <RacePointsCarousel 
+                year={selectedYear}
                 selectedDrivers={selectedDrivers}
               />
-            </ChartContainer>
-            
-            <RacePointsCarousel year={selectedYear} />
+            </div>
           </div>
 
           {/* Other Charts - Grid Layout */}

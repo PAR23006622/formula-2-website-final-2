@@ -7,7 +7,7 @@ import {
   CarouselItem,
   type CarouselApi
 } from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { TeamFilter } from "./team-filter";
@@ -143,23 +143,22 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
       </div>
 
       <div className="space-y-4">
-        <Card className="p-6 shadow-sm dark:bg-[#1f2937] dark:border-gray-800">
-          <div className="w-full h-[465px]">
-            <Carousel setApi={setApi}>
-              <CarouselContent>
-                {racePairs.map((pair, index) => (
-                  <CarouselItem key={index}>
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2 dark:text-white">
+        <div className="relative border rounded-lg bg-white shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 dark:bg-[#1f2937] dark:border-gray-800">
+          <Carousel setApi={setApi}>
+            <CarouselContent>
+              {racePairs.map((pair, index) => (
+                <CarouselItem key={index}>
+                  <Card className={`chart-card bg-white border-0 ${isMobile ? 'h-[400px]' : 'h-[600px]'} dark:bg-[#1f2937]`}>
+                    <CardHeader className={isMobile ? 'p-3' : 'p-4'}>
+                      <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
                         {pair.length === 2 
-                          ? `${raceLocations[pair[0]-1] || `Race ${pair[0]}`} & ${raceLocations[pair[1]-1] || `Race ${pair[1]}`}`
-                          : `${raceLocations[pair[0]-1] || `Race ${pair[0]}`}`
+                          ? `Points distribution for ${raceLocations[pair[0]-1] || `Race ${pair[0]}`} and ${raceLocations[pair[1]-1] || `Race ${pair[1]}`}`
+                          : `Points distribution for ${raceLocations[pair[0]-1] || `Race ${pair[0]}`}`
                         }
-                      </h3>
-                      <p className="text-muted-foreground text-sm mb-4">
-                        Points distribution for selected races
                       </p>
-                      <div className="h-[400px]">
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className={`${isMobile ? 'h-[350px]' : 'h-[500px]'}`}>
                         <SimpleRaceChart
                           year={year}
                           startRace={pair[0]}
@@ -167,21 +166,21 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
                           selectedTeams={currentTeams}
                         />
                       </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-          </div>
-        </Card>
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </div>
 
-        <Card className="shadow-sm dark:bg-[#1f2937] dark:border-gray-800">
+        <Card className="bg-white dark:bg-[#1f2937] border shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 dark:border-gray-800 rounded-3xl">
           <CardContent className="flex items-center justify-center py-4">
             <div className="flex items-center gap-4">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 dark:bg-[#1f2937] dark:hover:bg-[#2d3748] dark:border-gray-600"
+                className="h-8 w-8"
                 onClick={() => api?.scrollPrev()}
                 disabled={!api}
               >
@@ -205,7 +204,7 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 dark:bg-[#1f2937] dark:hover:bg-[#2d3748] dark:border-gray-600"
+                className="h-8 w-8"
                 onClick={() => api?.scrollNext()}
                 disabled={!api}
               >

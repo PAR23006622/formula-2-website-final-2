@@ -153,16 +153,14 @@ export function SimpleRaceChart({
           },
           ticks: {
             color: textColor,
-            maxRotation: 45,
-            minRotation: 45,
             font: {
-              size: 10,
+              size: 12,
               weight: 'normal' as const
             }
           },
           title: {
             display: true,
-            text: 'Race Location',
+            text: '',
             color: textColor,
             font: {
               size: 12,

@@ -2,70 +2,88 @@
 
 import { Line } from "react-chartjs-2";
 import { useTheme } from "next-themes";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { createDriverColorMap } from "@/lib/chart-colors";
 import driverStandings from '@/results/driver-standings.json';
 import calendarData from '@/results/calendar.json';
 
 interface CumulativePointsChartProps {
   year: string;
-  selectedDrivers?: Set<string>;
+  externalSelectedDrivers?: Set<string>;
 }
 
-export function CumulativePointsChart({ year, selectedDrivers }: CumulativePointsChartProps) {
+export function CumulativePointsChart({ year, externalSelectedDrivers }: CumulativePointsChartProps) {
+  const [data, setData] = useState<any>(null);
   const { theme } = useTheme();
+  const [options, setOptions] = useState({});
+  const [selectedDrivers, setSelectedDrivers] = useState<Set<string>>(new Set());
+  const [allDrivers, setAllDrivers] = useState<string[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Get race locations from calendar
-  const raceLocations = useMemo(() => {
-    const yearCalendar = calendarData[year as keyof typeof calendarData];
-    if (!yearCalendar) return [];
-    return yearCalendar.races.map(race => race.location);
-  }, [year]);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
-  const data = useMemo(() => {
+  // Initialize drivers data
+  useEffect(() => {
     const yearData = driverStandings.find(d => d.year.toString() === year);
-    if (!yearData) return null;
+    if (yearData) {
+      const drivers = yearData.standings.map(driver => driver.driverName);
+      setAllDrivers(drivers);
+      if (!externalSelectedDrivers) {
+        setSelectedDrivers(new Set(drivers));
+      }
+    }
+  }, [year, externalSelectedDrivers]);
 
-    const driverNames = yearData.standings.map(driver => driver.driverName);
-    const colorMap = createDriverColorMap(driverNames);
+  // Use external selected drivers if provided
+  const effectiveSelectedDrivers = externalSelectedDrivers || selectedDrivers;
 
-    const datasets = yearData.standings
-      .filter(driver => selectedDrivers?.has(driver.driverName))
-      .map(driver => {
-        const sprintPoints = driver.sprintRaceScores.map(score => parseInt(score, 10) || 0);
-        const featurePoints = driver.featureRaceScores.map(score => parseInt(score, 10) || 0);
-        
-        let cumulative = 0;
-        const cumulativePoints = [];
-        
-        for (let i = 0; i < Math.max(sprintPoints.length, featurePoints.length); i++) {
-          cumulative += (sprintPoints[i] || 0) + (featurePoints[i] || 0);
-          cumulativePoints.push(cumulative);
-        }
+  useEffect(() => {
+    const yearData = driverStandings.find(d => d.year.toString() === year);
+    if (!yearData) return;
 
-        return {
-          label: driver.driverName,
-          data: cumulativePoints,
-          borderColor: colorMap[driver.driverName],
-          backgroundColor: colorMap[driver.driverName],
-          borderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          tension: 0.1,
-        };
-      });
+    const datasets = yearData.standings.map((driver, index) => {
+      const sprintPoints = driver.sprintRaceScores.map(Number);
+      const featurePoints = driver.featureRaceScores.map(Number);
+      let cumulative = 0;
+      const cumulativePoints = [];
+      
+      for (let i = 0; i < Math.max(sprintPoints.length, featurePoints.length); i++) {
+        cumulative += (sprintPoints[i] || 0) + (featurePoints[i] || 0);
+        cumulativePoints.push(cumulative);
+      }
 
-    return {
-      labels: raceLocations,
+      return {
+        label: driver.driverName,
+        data: cumulativePoints,
+        borderColor: driverColors[index % driverColors.length],
+        backgroundColor: driverColors[index % driverColors.length],
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.1,
+        fill: false,
+        hidden: !effectiveSelectedDrivers.has(driver.driverName)
+      };
+    });
+
+    const raceLocations = calendarData[year as keyof typeof calendarData]?.races.map(race => race.location) || [];
+
+    setData({
+      labels: raceLocations.slice(0, Math.max(...datasets.map(d => d.data.length))),
       datasets
-    };
-  }, [year, raceLocations, selectedDrivers]);
+    });
+  }, [year, effectiveSelectedDrivers, theme]);
 
-  const options = useMemo(() => {
+  useEffect(() => {
     const textColor = theme === 'dark' ? '#fff' : '#000';
     const gridColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
 
-    return {
+    setOptions({
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
@@ -73,11 +91,17 @@ export function CumulativePointsChart({ year, selectedDrivers }: CumulativePoint
           display: false
         },
         tooltip: {
-          mode: 'index' as const,
+          mode: 'index',
           intersect: false,
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
           titleColor: '#fff',
           bodyColor: '#fff',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          padding: 8,
+          bodySpacing: 4,
+          titleSpacing: 4,
+          cornerRadius: 4,
           callbacks: {
             label: function(context: any) {
               return `${context.dataset.label}: ${context.raw} points`;
@@ -89,43 +113,50 @@ export function CumulativePointsChart({ year, selectedDrivers }: CumulativePoint
         y: {
           beginAtZero: true,
           grid: {
-            color: gridColor
+            color: gridColor,
+            drawBorder: false,
           },
           ticks: {
-            color: textColor
-          },
-          title: {
-            display: true,
-            text: 'Points',
-            color: textColor
+            color: textColor,
+            callback: function(value: any) {
+              return value + ' pts';
+            }
           }
         },
         x: {
           grid: {
-            color: gridColor
+            display: false,
           },
           ticks: {
             color: textColor,
             maxRotation: 45,
             minRotation: 45
-          },
-          title: {
-            display: true,
-            text: 'Race Location',
-            color: textColor
           }
         }
       }
-    };
-  }, [theme]);
+    });
+  }, [theme, isMobile]);
 
-  if (!data) {
-    return <div className="flex items-center justify-center h-full">No data available for selected year</div>;
-  }
+  if (!data) return null;
 
   return (
     <div className="w-full h-full">
-      <Line data={data} options={options} />
+      <Line data={data} options={options} className="w-full h-full" />
     </div>
   );
 }
+
+const driverColors = [
+  '#FF3366', // Red
+  '#3366FF', // Blue
+  '#33CC66', // Green
+  '#FF9933', // Orange
+  '#9933FF', // Purple
+  '#33CCCC', // Teal
+  '#FFCC33', // Yellow
+  '#FF33CC', // Pink
+  '#6D78AD', // Blue Gray
+  '#CC6600', // Brown
+  '#808080', // Gray
+  '#0099CC', // Light Blue
+];

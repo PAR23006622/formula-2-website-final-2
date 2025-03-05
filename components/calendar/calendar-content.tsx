@@ -67,7 +67,7 @@ export function CalendarContent({ defaultYear }: CalendarContentProps) {
       {races.map((race, index) => {
         const countryCode = getCountryCode(race.location);
         return (
-          <Card key={index} className="overflow-hidden bg-white dark:bg-[#1f2937] shadow-sm rounded-3xl dark:border-gray-800">
+          <Card key={index} className="overflow-hidden bg-white dark:bg-[#1f2937] shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 rounded-3xl dark:border-gray-800">
             <div className="text-center p-4">
               <h3 className="text-lg font-medium">Round {index + 1}</h3>
             </div>

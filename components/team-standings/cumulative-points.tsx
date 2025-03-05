@@ -191,7 +191,7 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
           },
           title: {
             display: true,
-            text: 'Race Location',
+            text: '',
             color: textColor,
             font: {
               size: isMobile ? 10 : 12,
@@ -205,18 +205,10 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
   if (!data) return null;
 
   return (
-    <div className="w-full h-full relative">
-      {!externalSelectedTeams && (
-        <div className="absolute top-2 right-2 z-10">
-          <TeamFilter
-            teams={allTeams}
-            selectedTeams={selectedTeams}
-            onToggleTeam={toggleTeam}
-            onToggleAll={toggleAllTeams}
-          />
-        </div>
-      )}
-      <Line data={data} options={options} />
+    <div>
+      <div className={`${isMobile ? 'h-[400px]' : 'h-[500px]'}`}>
+        <Line data={data} options={options} />
+      </div>
     </div>
   );
 }

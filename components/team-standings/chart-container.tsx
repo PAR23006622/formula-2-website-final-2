@@ -1,28 +1,37 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartDescription } from "@/components/ui/chart-description";
+import { cn } from "@/lib/utils";
 
 interface ChartContainerProps {
   title: string;
   description: string;
   children: ReactNode;
-  isLineChart?: boolean;
+  className?: string;
 }
 
-export function ChartContainer({ title, description, children, isLineChart = false }: ChartContainerProps) {
+export function ChartContainer({ 
+  title, 
+  description, 
+  children,
+  className = ""
+}: ChartContainerProps) {
   return (
-    <Card className="dark:bg-[#1f2937] dark:border-gray-800">
-      <CardHeader className="space-y-1 px-6 pt-6">
-        <CardTitle className="dark:text-white">{title}</CardTitle>
-        <ChartDescription className="dark:text-gray-300">{description}</ChartDescription>
-      </CardHeader>
-      <CardContent className="px-6 pb-6">
-        <div className={isLineChart ? 'h-[500px]' : 'h-[400px]'}>
-          {children}
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      className={cn(
+        "bg-white dark:bg-[#1f2937] rounded-3xl p-6 border shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 dark:border-gray-800",
+        className
+      )}
+    >
+      <div className="mb-4">
+        <h3 className="text-xl font-semibold">{title}</h3>
+        <p className="text-muted-foreground text-sm">
+          {description}
+        </p>
+      </div>
+      <div className="h-[400px]">
+        {children}
+      </div>
+    </div>
   );
 }

@@ -1,27 +1,24 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { RacePointsDistributionChart } from "./race-points-distribution";
 import { ChartDescription } from "@/components/ui/chart-description";
 import calendarData from '@/results/calendar.json';
-import { DriverFilter } from "./driver-filter";
-import driverStandings from '@/results/driver-standings.json';
 
 interface RacePointsCarouselProps {
   year: string;
+  selectedDrivers: Set<string>;
 }
 
-export function RacePointsCarousel({ year }: RacePointsCarouselProps) {
+export function RacePointsCarousel({ year, selectedDrivers }: RacePointsCarouselProps) {
   const [api, setApi] = useState<any>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
-  const [selectedDrivers, setSelectedDrivers] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
-  const [allDrivers, setAllDrivers] = useState<string[]>([]);
 
   // Get race locations from calendar
   const raceLocations = useMemo(() => {
@@ -48,16 +45,6 @@ export function RacePointsCarousel({ year }: RacePointsCarouselProps) {
     });
   }, [api]);
 
-  // Initialize drivers data
-  useEffect(() => {
-    const yearData = driverStandings.find(d => d.year.toString() === year);
-    if (yearData) {
-      const drivers = yearData.standings.map(driver => driver.driverName);
-      setAllDrivers(drivers);
-      setSelectedDrivers(new Set(drivers));
-    }
-  }, [year]);
-
   // Create pairs of races for the carousel
   const racePairs = useMemo(() => {
     const totalRaces = 14; // Assuming 14 races in a season
@@ -65,10 +52,8 @@ export function RacePointsCarousel({ year }: RacePointsCarouselProps) {
     
     for (let i = 1; i < totalRaces; i += 2) {
       if (i + 1 <= totalRaces) {
-        // Add a pair of races
         pairs.push([i, i + 1]);
       } else {
-        // Add the last race by itself if there's an odd number
         pairs.push([i]);
       }
     }
@@ -76,55 +61,24 @@ export function RacePointsCarousel({ year }: RacePointsCarouselProps) {
     return pairs;
   }, []);
 
-  const toggleDriver = React.useCallback((driverName: string) => {
-    setSelectedDrivers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(driverName)) {
-        newSet.delete(driverName);
-      } else {
-        newSet.add(driverName);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const toggleAllDrivers = React.useCallback(() => {
-    setSelectedDrivers(prev => 
-      prev.size === allDrivers.length ? new Set() : new Set(allDrivers)
-    );
-  }, [allDrivers]);
-
   return (
     <div className="space-y-4">
-      <div className="relative">
-        {/* Global filter that applies to all charts */}
-        <div className="absolute top-2 right-2 z-20">
-          <DriverFilter
-            drivers={allDrivers}
-            selectedDrivers={selectedDrivers}
-            onToggleDriver={toggleDriver}
-            onToggleAll={toggleAllDrivers}
-          />
-        </div>
-        
+      <div className="relative border rounded-lg bg-white shadow-md hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 dark:bg-[#1f2937] dark:border-gray-800">
         <Carousel setApi={setApi}>
           <CarouselContent>
             {racePairs.map((pair, index) => (
               <CarouselItem key={index}>
-                <Card className={`chart-card ${isMobile ? 'h-[400px]' : 'h-[600px]'}`}>
-                  <CardHeader className={isMobile ? 'p-3' : 'p-6'}>
-                    <CardTitle className={isMobile ? 'text-base' : 'text-xl'}>
-                      Total Points Per Race - Drivers Performance Overview
-                    </CardTitle>
-                    <ChartDescription className={isMobile ? 'text-xs' : 'text-sm'}>
+                <Card className={`chart-card bg-white border-0 ${isMobile ? 'h-[400px]' : 'h-[600px]'} dark:bg-[#1f2937]`}>
+                  <CardHeader className={isMobile ? 'p-3' : 'p-4'}>
+                    <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
                       {pair.length === 2 
                         ? `Points distribution for ${raceLocations[pair[0]-1] || `Race ${pair[0]}`} and ${raceLocations[pair[1]-1] || `Race ${pair[1]}`}`
                         : `Points distribution for ${raceLocations[pair[0]-1] || `Race ${pair[0]}`}`
                       }
-                    </ChartDescription>
+                    </p>
                   </CardHeader>
-                  <CardContent className="chart-content p-0">
-                    <div className="chart-wrapper">
+                  <CardContent className="p-0">
+                    <div className={`${isMobile ? 'h-[350px]' : 'h-[500px]'}`}>
                       <RacePointsDistributionChart
                         year={year}
                         startRace={pair[0]}
@@ -144,8 +98,8 @@ export function RacePointsCarousel({ year }: RacePointsCarouselProps) {
         </Carousel>
       </div>
 
-      <Card className="chart-card h-auto py-4">
-        <CardContent className="flex items-center justify-center">
+      <Card className="bg-white border shadow-md hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 dark:bg-[#1f2937] dark:border-gray-800">
+        <CardContent className="flex items-center justify-center py-4">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -163,8 +117,8 @@ export function RacePointsCarousel({ year }: RacePointsCarouselProps) {
                   variant={current === index ? "default" : "outline"}
                   className={`h-2.5 w-2.5 rounded-full p-0 ${
                     current === index 
-                      ? 'bg-primary' 
-                      : 'bg-muted border-2 border-primary/50 dark:border-primary/70'
+                      ? 'bg-[#0090d0] dark:bg-[#0090d0] border-[#0090d0]' 
+                      : 'dark:bg-[#1f2937] dark:hover:bg-[#2d3748] dark:border-gray-600'
                   }`}
                   onClick={() => api?.scrollTo(index)}
                   disabled={!api}

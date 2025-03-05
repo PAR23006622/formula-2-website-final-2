@@ -91,7 +91,7 @@ export default function TeamStandings() {
             />
           </div>
           
-          <div className="card p-4 rounded-lg border bg-card text-card-foreground shadow-sm h-[600px] dark:bg-[#1f2937] dark:border-gray-800">
+          <div className="card p-4 rounded-lg border bg-white text-card-foreground shadow-sm h-[550px] dark:bg-[#1f2937] dark:border-gray-800">
             <div className="mb-4">
               <p className="text-muted-foreground text-sm">
                 Track how teams accumulate championship points throughout the season.
