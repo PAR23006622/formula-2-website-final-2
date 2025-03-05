@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users } from "lucide-react";
+import { Users, Users2 } from "lucide-react";
 import teamsAndDrivers from '@/results/teams-and-drivers.json';
 
 interface TeamsDriversContentProps {
@@ -55,29 +55,27 @@ export function TeamsDriversContent({ year, showHeader = true }: TeamsDriversCon
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {teams.map((team) => (
-        <Card key={team.teamName} className="chart-card h-auto w-[280px] mx-auto">
-          <CardHeader className="text-center py-3">
-            <CardTitle className="text-lg">{team.teamName}</CardTitle>
-          </CardHeader>
-          <CardContent className="py-3">
-            <div>
-              <div className="flex items-center gap-2 mb-2 justify-center">
-                <Users className="h-4 w-4 text-primary" />
-                <p className="text-sm font-medium text-muted-foreground">Drivers</p>
-              </div>
-              <div className="space-y-1">
-                {team.drivers.map((driver) => (
-                  <div key={driver} className="text-center">
-                    <p className="text-sm font-medium">{driver}</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+        {teams.map((team, index) => (
+          <div key={index} className="w-full max-w-sm bg-white dark:bg-[#1f2937] rounded-3xl shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 border dark:border-gray-800">
+            <div className="p-6 space-y-4 text-center">
+              <h3 className="text-xl font-semibold">{team.teamName}</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-2">
+                  <Users2 className="h-4 w-4 text-[#0090d0]" />
+                  <span className="text-base font-medium">Drivers</span>
+                </div>
+                {team.drivers.map((driver, dIndex) => (
+                  <div key={dIndex}>
+                    <span className="text-base text-muted-foreground">{driver}</span>
                   </div>
                 ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
