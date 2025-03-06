@@ -1,69 +1,71 @@
 import { NextResponse } from 'next/server';
+import { scrapeDriverStandings } from '../../../api/driver-standings';
+import { scrapeTeamStandings } from '../../../api/team-standings';
+import { scrapeCalendar } from '../../../api/calendar';
+import { scrapeTeamsAndDrivers } from '../../../api/teams-and-drivers';
 import { put } from '@vercel/blob';
 
+// Set runtime to edge for better performance
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300;
 
-async function triggerScraper(name: string) {
+async function triggerScraper() {
     try {
-        const response = await fetch(`${process.env.VERCEL_URL}/api/scrape/${name}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        // Scrape all data
+        console.log('Starting scraping cycle...');
+        
+        // Driver Standings
+        console.log('Scraping driver standings...');
+        const driverStandings = await scrapeDriverStandings();
+        await put('driver-standings.json', JSON.stringify(driverStandings), {
+            access: 'public',
+            addRandomSuffix: false
+        });
+        
+        // Team Standings
+        console.log('Scraping team standings...');
+        const teamStandings = await scrapeTeamStandings();
+        await put('team-standings.json', JSON.stringify(teamStandings), {
+            access: 'public',
+            addRandomSuffix: false
+        });
+        
+        // Calendar
+        console.log('Scraping calendar...');
+        const calendar = await scrapeCalendar();
+        await put('calendar.json', JSON.stringify(calendar), {
+            access: 'public',
+            addRandomSuffix: false
+        });
+        
+        // Teams and Drivers
+        console.log('Scraping teams and drivers...');
+        const teamsAndDrivers = await scrapeTeamsAndDrivers();
+        await put('teams-and-drivers.json', JSON.stringify(teamsAndDrivers), {
+            access: 'public',
+            addRandomSuffix: false
         });
 
-        if (!response.ok) {
-            throw new Error(`Failed to trigger ${name} scraper`);
-        }
-
-        const data = await response.json();
-        if (data) {
-            // Store the data in Vercel Blob Storage
-            const filename = `${name.toLowerCase().replace(/\s+/g, '-')}.json`;
-            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-            await put(filename, blob, { access: 'public' });
-            console.log(`✅ ${name} completed and stored successfully`);
-        }
-        return data;
-    } catch (error) {
-        console.error(`❌ Error in ${name} scraper:`, error);
-        return null;
+        return { success: true, message: 'All data scraped and saved successfully' };
+    } catch (error: unknown) {
+        console.error('Error in scraping cycle:', error);
+        return { 
+            success: false, 
+            error: error instanceof Error ? error.message : 'An unknown error occurred' 
+        };
     }
 }
 
 export async function GET() {
     try {
-        console.log('📊 Starting scraping cycle');
-        const startTime = Date.now();
-
-        // Trigger scrapers sequentially
-        const driverStandings = await triggerScraper('driver-standings');
-        const teamStandings = await triggerScraper('team-standings');
-        const calendar = await triggerScraper('calendar');
-        const teamsAndDrivers = await triggerScraper('teams-and-drivers');
-
-        const duration = (Date.now() - startTime) / 1000;
-        console.log(`✨ Scraping cycle completed in ${duration.toFixed(1)} seconds`);
-
-        return NextResponse.json({
-            success: true,
-            duration: `${duration.toFixed(1)}s`,
-            timestamp: new Date().toISOString(),
-            data: {
-                driverStandings,
-                teamStandings,
-                calendar,
-                teamsAndDrivers
-            }
-        });
-    } catch (error) {
-        console.error('❌ Error in cron job:', error);
-        return NextResponse.json({ 
-            success: false, 
-            error: 'Failed to run scrapers',
-            timestamp: new Date().toISOString()
-        }, { status: 500 });
+        const result = await triggerScraper();
+        return NextResponse.json(result);
+    } catch (error: unknown) {
+        return NextResponse.json(
+            { 
+                error: error instanceof Error ? error.message : 'Failed to run scraping cycle' 
+            },
+            { status: 500 }
+        );
     }
 }

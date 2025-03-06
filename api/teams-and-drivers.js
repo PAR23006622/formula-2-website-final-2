@@ -37,7 +37,7 @@ async function scrapeTeamsAndDrivers() {
             try {
                 await page.goto(url, { 
                     waitUntil: 'networkidle2', 
-                    timeout: 60000 
+                    timeout: 6000 
                 });
 
                 const data = year >= 2020 ? 

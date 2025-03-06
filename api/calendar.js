@@ -26,7 +26,7 @@ async function scrapeCalendar() {
             const url = `https://www.fiaformula2.com/Calendar?seasonid=${seasonId}`;
             await page.goto(url, { 
                 waitUntil: 'networkidle2', 
-                timeout: 60000 
+                timeout: 6000 
             });
 
             try {
