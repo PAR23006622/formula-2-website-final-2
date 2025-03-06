@@ -12,6 +12,48 @@ import {
   ChartOptions
 } from 'chart.js';
 
+// Interface for raw data from JSON
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: TeamStanding[];
+}
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName, // Map driverName to teamName
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
 ChartJS.register(
   ArcElement,
   Tooltip,
@@ -31,7 +73,7 @@ export function PointsDistributionPie({ year }: { year: string }) {
 
   // Prepare chart data
   const data = useMemo(() => {
-    const currentYear = teamStandings.find(d => d.year.toString() === year);
+    const currentYear = typedTeamStandings.find(d => d.year.toString() === year);
     
     if (!currentYear) return null;
 
@@ -39,8 +81,10 @@ export function PointsDistributionPie({ year }: { year: string }) {
     let totalFeaturePoints = 0;
 
     currentYear.standings.forEach(team => {
-      totalSprintPoints += team.sprintRaceScores.reduce((sum, score) => sum + parseInt(score), 0);
-      totalFeaturePoints += team.featureRaceScores.reduce((sum, score) => sum + parseInt(score), 0);
+      totalSprintPoints += team.sprintRaceScores.reduce((sum: number, score: number) => 
+        sum + score, 0);
+      totalFeaturePoints += team.featureRaceScores.reduce((sum: number, score: number) => 
+        sum + score, 0);
     });
 
     return {

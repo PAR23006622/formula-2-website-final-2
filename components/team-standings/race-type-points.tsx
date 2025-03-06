@@ -16,6 +16,48 @@ import {
   ChartOptions
 } from 'chart.js';
 
+// Interface matching the actual JSON data structure
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for our processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: TeamStanding[];
+}
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName, // Map driverName to teamName
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -42,13 +84,13 @@ export function RaceTypePointsChart({ year, showFilter = true }: { year: string,
   // Initialize teams data
   useEffect(() => {
     try {
-      const yearData = teamStandings.find(d => d.year.toString() === year);
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
       if (!yearData) {
         setError('No data available for selected year');
         return;
       }
 
-      const teamNames = yearData.standings.map(team => team.driverName);
+      const teamNames = yearData.standings.map(team => team.teamName);
       setAllTeams(teamNames);
       setSelectedTeams(new Set(teamNames));
     } catch (error) {
@@ -78,17 +120,17 @@ export function RaceTypePointsChart({ year, showFilter = true }: { year: string,
   // Prepare chart data
   const data = useMemo(() => {
     try {
-      const yearData = teamStandings.find(d => d.year.toString() === year);
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
       if (!yearData) return null;
       
       // Calculate total sprint and feature race points for each team
       const teamsData = yearData.standings
-        .filter(team => selectedTeams.has(team.driverName))
+        .filter(team => selectedTeams.has(team.teamName))
         .map(team => {
-          const sprintPoints = team.sprintRaceScores.reduce((sum, score) => sum + parseInt(score), 0);
-          const featurePoints = team.featureRaceScores.reduce((sum, score) => sum + parseInt(score), 0);
+          const sprintPoints = team.sprintRaceScores.reduce((sum: number, score: number) => sum + score, 0);
+          const featurePoints = team.featureRaceScores.reduce((sum: number, score: number) => sum + score, 0);
           return {
-            name: team.driverName,
+            name: team.teamName,
             sprintPoints,
             featurePoints,
             totalPoints: sprintPoints + featurePoints

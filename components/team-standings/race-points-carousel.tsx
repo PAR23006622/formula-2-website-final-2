@@ -16,10 +16,66 @@ import calendarData from '@/results/calendar.json';
 import { SimpleRaceChart } from "./simple-race-chart";
 import "@/lib/chart-config";
 
+// Interface for raw data from JSON
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: TeamStanding[];
+}
+
+interface Race {
+  startDate: string;
+  endDate: string;
+  month: string;
+  location: string;
+}
+
+interface CalendarYear {
+  title: string;
+  races: Race[];
+}
+
 interface RacePointsCarouselProps {
   year: string;
   externalSelectedTeams?: Set<string>;
 }
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName, // Map driverName to teamName
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
+const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
 export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCarouselProps) {
   const [isMobile, setIsMobile] = useState(false);
@@ -54,7 +110,7 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
 
   // Get race locations from calendar
   useEffect(() => {
-    const yearCalendar = calendarData[year as keyof typeof calendarData];
+    const yearCalendar = typedCalendarData[year];
     if (yearCalendar) {
       setRaceLocations(yearCalendar.races.map(race => race.location));
     }
@@ -62,9 +118,9 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
 
   // Initialize teams data
   useEffect(() => {
-    const yearData = teamStandings.find(d => d.year.toString() === year);
+    const yearData = typedTeamStandings.find(d => d.year.toString() === year);
     if (yearData) {
-      const teams = yearData.standings.map(team => team.driverName);
+      const teams = yearData.standings.map(team => team.teamName);
       setAllTeams(teams);
       if (!externalSelectedTeams) {
         setSelectedTeams(new Set(teams));

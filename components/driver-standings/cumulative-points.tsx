@@ -7,10 +7,66 @@ import { createDriverColorMap } from "@/lib/chart-colors";
 import driverStandings from '@/results/driver-standings.json';
 import calendarData from '@/results/calendar.json';
 
+// Interface matching the actual JSON data structure
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for our processed data
+interface DriverStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: DriverStanding[];
+}
+
+interface Race {
+  startDate: string;
+  endDate: string;
+  month: string;
+  location: string;
+}
+
+interface CalendarYear {
+  title: string;
+  races: Race[];
+}
+
 interface CumulativePointsChartProps {
   year: string;
   externalSelectedDrivers?: Set<string>;
 }
+
+// Process the raw data to match our expected format
+const typedDriverStandings = (driverStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    driverName: standing.driverName,
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
+const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
 export function CumulativePointsChart({ year, externalSelectedDrivers }: CumulativePointsChartProps) {
   const [data, setData] = useState<any>(null);
@@ -29,7 +85,7 @@ export function CumulativePointsChart({ year, externalSelectedDrivers }: Cumulat
 
   // Initialize drivers data
   useEffect(() => {
-    const yearData = driverStandings.find(d => d.year.toString() === year);
+    const yearData = typedDriverStandings.find(d => d.year.toString() === year);
     if (yearData) {
       const drivers = yearData.standings.map(driver => driver.driverName);
       setAllDrivers(drivers);
@@ -43,12 +99,12 @@ export function CumulativePointsChart({ year, externalSelectedDrivers }: Cumulat
   const effectiveSelectedDrivers = externalSelectedDrivers || selectedDrivers;
 
   useEffect(() => {
-    const yearData = driverStandings.find(d => d.year.toString() === year);
+    const yearData = typedDriverStandings.find(d => d.year.toString() === year);
     if (!yearData) return;
 
     const datasets = yearData.standings.map((driver, index) => {
-      const sprintPoints = driver.sprintRaceScores.map(Number);
-      const featurePoints = driver.featureRaceScores.map(Number);
+      const sprintPoints = driver.sprintRaceScores;
+      const featurePoints = driver.featureRaceScores;
       let cumulative = 0;
       const cumulativePoints = [];
       
@@ -71,7 +127,7 @@ export function CumulativePointsChart({ year, externalSelectedDrivers }: Cumulat
       };
     });
 
-    const raceLocations = calendarData[year as keyof typeof calendarData]?.races.map(race => race.location) || [];
+    const raceLocations = typedCalendarData[year]?.races.map(race => race.location) || [];
 
     setData({
       labels: raceLocations.slice(0, Math.max(...datasets.map(d => d.data.length))),

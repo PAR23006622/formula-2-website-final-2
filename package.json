@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:scrape": "node test-scrape.js"
+    "test:scrape": "node test-scrape.js",
+    "scraper": "node server/scraper-service.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -42,6 +43,7 @@
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
     "@vercel/analytics": "^1.2.2",
+    "@vercel/blob": "^0.27.2",
     "@vercel/speed-insights": "^1.0.10",
     "autoprefixer": "10.4.15",
     "chart.js": "^4.4.2",
@@ -52,10 +54,12 @@
     "embla-carousel-react": "^8.3.0",
     "eslint": "8.49.0",
     "eslint-config-next": "14.1.0",
+    "fs": "^0.0.1-security",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.446.0",
     "next": "^14.2.20",
     "next-themes": "^0.3.0",
+    "pm2": "^5.4.3",
     "postcss": "^8.4.49",
     "puppeteer": "^24.2.0",
     "puppeteer-core": "^24.3.1",

@@ -29,28 +29,34 @@ async function scrapeTeamsAndDrivers() {
     const allData = [];
     let year = 2017;
 
-    for (const url of urls) {
-        console.log(`Scraping data for year: ${year} from URL: ${url}`);
-        const page = await browser.newPage();
+    try {
+        for (const url of urls) {
+            console.log(`Scraping data for year: ${year} from URL: ${url}`);
+            const page = await browser.newPage();
 
-        try {
-            await page.goto(url, { 
-                waitUntil: 'networkidle2', 
-                timeout: 60000 
-            });
+            try {
+                await page.goto(url, { 
+                    waitUntil: 'networkidle2', 
+                    timeout: 60000 
+                });
 
-            const data = year >= 2020 ? await scrape2020Onwards(page) : await scrapeBefore2020(page);
-            allData.push({ year, ...data });
-        } catch (error) {
-            console.error(`Failed to load URL for year ${year}:`, error);
-        } finally {
-            await page.close();
+                const data = year >= 2020 ? 
+                    await scrape2020Onwards(page) : 
+                    await scrapeBefore2020(page);
+                
+                allData.push({ year, ...data });
+            } catch (error) {
+                console.error(`Failed to load URL for year ${year}:`, error);
+            } finally {
+                await page.close();
+            }
+
+            year++;
         }
-
-        year++;
+    } finally {
+        await browser.close();
     }
 
-    await browser.close();
     return allData;
 }
 

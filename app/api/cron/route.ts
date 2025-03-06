@@ -1,69 +1,69 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import { scrapeDriverStandings } from '@/lib/scrapers/driver-standings';
-import { scrapeTeamStandings } from '@/lib/scrapers/team-standings';
-import { scrapeTeamsAndDrivers } from '@/lib/scrapers/teams-and-drivers';
-import { scrapeCalendar } from '@/lib/scrapers/calendar';
+import { put } from '@vercel/blob';
 
-const resultsDir = path.join(process.cwd(), 'results');
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
-if (!fs.existsSync(resultsDir)) {
-    fs.mkdirSync(resultsDir);
-}
-
-// Vercel cron job will hit this endpoint every 30 minutes
-export async function GET(request: Request) {
+async function triggerScraper(name: string) {
     try {
-        // Check for secret token to prevent unauthorized access
-        const { searchParams } = new URL(request.url);
-        const token = searchParams.get('token');
-        
-        if (token !== process.env.CRON_SECRET_TOKEN) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const response = await fetch(`${process.env.VERCEL_URL}/api/scrape/${name}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to trigger ${name} scraper`);
         }
 
-        console.log('Starting scheduled scraping process...');
+        const data = await response.json();
+        if (data) {
+            // Store the data in Vercel Blob Storage
+            const filename = `${name.toLowerCase().replace(/\s+/g, '-')}.json`;
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            await put(filename, blob, { access: 'public' });
+            console.log(`✅ ${name} completed and stored successfully`);
+        }
+        return data;
+    } catch (error) {
+        console.error(`❌ Error in ${name} scraper:`, error);
+        return null;
+    }
+}
 
-        // Run scrapers sequentially
-        const driverStandings = await scrapeDriverStandings();
-        fs.writeFileSync(
-            path.join(resultsDir, 'driver-standings.json'),
-            JSON.stringify(driverStandings, null, 2)
-        );
-        console.log('Driver standings updated');
+export async function GET() {
+    try {
+        console.log('📊 Starting scraping cycle');
+        const startTime = Date.now();
 
-        const teamStandings = await scrapeTeamStandings();
-        fs.writeFileSync(
-            path.join(resultsDir, 'team-standings.json'),
-            JSON.stringify(teamStandings, null, 2)
-        );
-        console.log('Team standings updated');
+        // Trigger scrapers sequentially
+        const driverStandings = await triggerScraper('driver-standings');
+        const teamStandings = await triggerScraper('team-standings');
+        const calendar = await triggerScraper('calendar');
+        const teamsAndDrivers = await triggerScraper('teams-and-drivers');
 
-        const calendar = await scrapeCalendar();
-        fs.writeFileSync(
-            path.join(resultsDir, 'calendar.json'),
-            JSON.stringify(calendar, null, 2)
-        );
-        console.log('Calendar updated');
-
-        const teamsAndDrivers = await scrapeTeamsAndDrivers();
-        fs.writeFileSync(
-            path.join(resultsDir, 'teams-and-drivers.json'),
-            JSON.stringify(teamsAndDrivers, null, 2)
-        );
-        console.log('Teams and drivers updated');
+        const duration = (Date.now() - startTime) / 1000;
+        console.log(`✨ Scraping cycle completed in ${duration.toFixed(1)} seconds`);
 
         return NextResponse.json({
             success: true,
-            message: 'Data updated successfully',
-            timestamp: new Date().toISOString()
+            duration: `${duration.toFixed(1)}s`,
+            timestamp: new Date().toISOString(),
+            data: {
+                driverStandings,
+                teamStandings,
+                calendar,
+                teamsAndDrivers
+            }
         });
-    } catch (error: unknown) {
-        console.error('Error during scheduled scraping:', error);
+    } catch (error) {
+        console.error('❌ Error in cron job:', error);
         return NextResponse.json({ 
-            success: false,
-            error: error instanceof Error ? error.message : 'An unknown error occurred'
+            success: false, 
+            error: 'Failed to run scrapers',
+            timestamp: new Date().toISOString()
         }, { status: 500 });
     }
 }

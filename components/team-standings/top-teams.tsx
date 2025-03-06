@@ -7,6 +7,48 @@ import { createTeamColorMap } from "@/lib/chart-colors";
 import teamStandings from '@/results/team-standings.json';
 import { TeamFilter } from "./team-filter";
 
+// Interface matching the actual JSON data structure
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for our processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: TeamStanding[];
+}
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName,
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
 export function TopTeamsChart({ year, showFilter = true }: { year: string, showFilter?: boolean }) {
   const [selectedTeams, setSelectedTeams] = useState<Set<string>>(new Set());
   const [allTeams, setAllTeams] = useState<string[]>([]);
@@ -24,13 +66,13 @@ export function TopTeamsChart({ year, showFilter = true }: { year: string, showF
   // Initialize teams data
   useEffect(() => {
     try {
-      const yearData = teamStandings.find(d => d.year.toString() === year);
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
       if (!yearData) {
         setError('No data available for selected year');
         return;
       }
 
-      const teamNames = yearData.standings.map(team => team.driverName);
+      const teamNames = yearData.standings.map(team => team.teamName);
       setAllTeams(teamNames);
       setSelectedTeams(new Set(teamNames));
     } catch (error) {
@@ -60,7 +102,7 @@ export function TopTeamsChart({ year, showFilter = true }: { year: string, showF
   // Prepare chart data
   const data = useMemo(() => {
     try {
-      const yearData = teamStandings.find(d => d.year.toString() === year);
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
       if (!yearData) return null;
       
       // Sort teams by points and get top 5
@@ -68,10 +110,10 @@ export function TopTeamsChart({ year, showFilter = true }: { year: string, showF
         .sort((a, b) => parseInt(b.totalPoints) - parseInt(a.totalPoints));
       
       const filteredTeams = sortedTeams.filter(team => 
-        selectedTeams.has(team.driverName)
+        selectedTeams.has(team.teamName)
       ).slice(0, 5);
       
-      const teamNames = filteredTeams.map(team => team.driverName);
+      const teamNames = filteredTeams.map(team => team.teamName);
       const colorMap = createTeamColorMap(teamNames);
       
       return {

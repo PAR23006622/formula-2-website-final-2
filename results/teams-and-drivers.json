@@ -691,13 +691,14 @@
       {
         "teamName": "ART Grand Prix",
         "drivers": [
+          "V. Martins",
           "R. Miyata"
         ]
       },
       {
         "teamName": "Rodin Motorsport",
         "drivers": [
-          "C. Mansell",
+          "A. Cordeel",
           "A. Dunne"
         ]
       },
@@ -718,7 +719,8 @@
       {
         "teamName": "Van Amersfoort Racing",
         "drivers": [
-          "J. Bennett"
+          "J. Bennett",
+          "R. Villagómez"
         ]
       }
     ]

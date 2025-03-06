@@ -18,17 +18,59 @@ import { PointsDistributionPie } from "../../components/team-standings/points-di
 import { TeamFilter } from "../../components/team-standings/team-filter";
 import teamStandings from '@/results/team-standings.json';
 
+// Interface matching the actual JSON data structure
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for our processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: TeamStanding[];
+}
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName, // Map driverName to teamName
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
 export default function TeamStandings() {
   const [selectedYear, setSelectedYear] = useState("2024");
-  const years = Array.from(new Set(teamStandings.map(d => d.year.toString()))).sort((a, b) => b.localeCompare(a));
+  const years = Array.from(new Set(typedTeamStandings.map(d => d.year.toString()))).sort((a, b) => b.localeCompare(a));
   const [selectedTeams, setSelectedTeams] = useState<Set<string>>(new Set());
   const [allTeams, setAllTeams] = useState<string[]>([]);
 
   // Initialize teams data
   useState(() => {
-    const yearData = teamStandings.find(d => d.year.toString() === selectedYear);
+    const yearData = typedTeamStandings.find(d => d.year.toString() === selectedYear);
     if (yearData) {
-      const teams = yearData.standings.map(team => team.driverName);
+      const teams = yearData.standings.map(team => team.teamName);
       setAllTeams(teams);
       setSelectedTeams(new Set(teams));
     }

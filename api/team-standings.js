@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs').promises;
+const path = require('path');
 
 async function getBrowserInstance() {
     return await puppeteer.launch({
@@ -46,9 +48,9 @@ async function scrapeTeamStandings() {
                     let scoreText = score.innerText.trim();
                     if (scoreText === '-') scoreText = '0';
                     if (index % 2 === 0) {
-                        sprintRaceScores.push(scoreText);
+                        sprintRaceScores.push(parseInt(scoreText) || 0);
                     } else {
-                        featureRaceScores.push(scoreText);
+                        featureRaceScores.push(parseInt(scoreText) || 0);
                     }
                 });
 
@@ -57,7 +59,8 @@ async function scrapeTeamStandings() {
                         teamName,
                         totalPoints,
                         sprintRaceScores,
-                        featureRaceScores
+                        featureRaceScores,
+                        position: data.length + 1
                     });
                 }
             });
@@ -68,9 +71,21 @@ async function scrapeTeamStandings() {
             };
         });
 
-        console.log('Data extracted successfully:', standingsData);
+        console.log('Data extracted successfully');
+
+        // Save the data to file
+        const filePath = path.join(process.cwd(), 'results', 'team-standings.json');
+        const currentData = await fs.readFile(filePath, 'utf8')
+            .then(data => JSON.parse(data))
+            .catch(() => []);
+
+        // Update or add 2024 data
+        const newData = [{ year: 2024, ...standingsData }];
+        await fs.writeFile(filePath, JSON.stringify(newData, null, 2));
+        console.log('Data saved to file successfully');
+
         await page.close();
-        return [{ year: 2024, ...standingsData }];
+        return newData;
     } catch (error) {
         console.error('Error during scraping:', error);
         throw error;

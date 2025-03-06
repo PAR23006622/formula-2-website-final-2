@@ -9,17 +9,45 @@ import "@/lib/chart-config";
 import teamStandings from '@/results/team-standings.json';
 import calendarData from '@/results/calendar.json';
 
-interface Team {
+// Interface for raw data from JSON
+interface RawStanding {
   driverName: string;
-  teamName?: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
 }
 
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
 interface YearData {
   year: number;
-  standings: Team[];
+  title: string;
+  standings: TeamStanding[];
+}
+
+interface Race {
+  startDate: string;
+  endDate: string;
+  month: string;
+  location: string;
+}
+
+interface CalendarYear {
+  title: string;
+  races: Race[];
 }
 
 interface RacePointsDistributionChartProps {
@@ -30,6 +58,21 @@ interface RacePointsDistributionChartProps {
   selectedTeams?: Set<string>;
   useTopRightFilter?: boolean;
 }
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName, // Map driverName to teamName
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
+const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
 export function RacePointsDistributionChart({ 
   year, 
@@ -47,7 +90,7 @@ export function RacePointsDistributionChart({
 
   // Get race locations from calendar
   const raceLocations = useMemo(() => {
-    const yearCalendar = calendarData[year as keyof typeof calendarData];
+    const yearCalendar = typedCalendarData[year];
     if (!yearCalendar) return [];
     return yearCalendar.races.map(race => race.location);
   }, [year]);
@@ -62,13 +105,13 @@ export function RacePointsDistributionChart({
   // Initialize teams data
   useEffect(() => {
     try {
-      const yearData = teamStandings.find(d => d.year.toString() === year);
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
       if (!yearData) {
         setError('No data available for selected year');
         return;
       }
 
-      const teamNames = yearData.standings.map(team => team.driverName);
+      const teamNames = yearData.standings.map(team => team.teamName);
       setAllTeams(teamNames);
       
       if (!externalSelectedTeams) {
@@ -105,29 +148,16 @@ export function RacePointsDistributionChart({
   // Prepare chart data
   const data = useMemo(() => {
     try {
-      const yearData = teamStandings.find(d => d.year.toString() === year) as YearData | undefined;
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
       if (!yearData) return null;
 
-      // Get the name to display (teamName if available, otherwise driverName)
-      const getDisplayName = (team: Team) => team.teamName || team.driverName;
-      
-      const teamNames = yearData.standings.map(getDisplayName);
+      const teamNames = yearData.standings.map(team => team.teamName);
       const colorMap = createTeamColorMap(teamNames);
       const currentSelectedTeams = externalSelectedTeams || selectedTeams;
       
       const datasets = yearData.standings.map(team => {
-        const displayName = getDisplayName(team);
-        
-        const sprintPoints = Array.isArray(team.sprintRaceScores) 
-          ? team.sprintRaceScores.map(Number) 
-          : [];
-        const featurePoints = Array.isArray(team.featureRaceScores) 
-          ? team.featureRaceScores.map(Number) 
-          : [];
-        
-        if (sprintPoints.length === 0 || featurePoints.length === 0) {
-          console.warn('Missing race scores for team:', displayName);
-        }
+        const sprintPoints = team.sprintRaceScores.map(Number);
+        const featurePoints = team.featureRaceScores.map(Number);
         
         const totalPoints = sprintPoints.map((sprint, index) => 
           sprint + (featurePoints[index] || 0)
@@ -138,13 +168,13 @@ export function RacePointsDistributionChart({
         );
 
         return {
-          label: displayName,
+          label: team.teamName,
           data: slicedPoints,
-          backgroundColor: colorMap[displayName],
-          borderColor: colorMap[displayName],
+          backgroundColor: colorMap[team.teamName],
+          borderColor: colorMap[team.teamName],
           borderWidth: 1,
           borderRadius: 4,
-          hidden: !currentSelectedTeams.has(displayName),
+          hidden: !currentSelectedTeams.has(team.teamName)
         };
       });
       

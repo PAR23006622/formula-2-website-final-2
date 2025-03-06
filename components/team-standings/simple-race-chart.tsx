@@ -8,12 +8,68 @@ import teamStandings from '@/results/team-standings.json';
 import { createTeamColorMap } from "@/lib/chart-colors";
 import "@/lib/chart-config"; // Import chart configuration
 
+// Interface matching the actual JSON data structure
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for our processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: TeamStanding[];
+}
+
+interface Race {
+  startDate: string;
+  endDate: string;
+  month: string;
+  location: string;
+}
+
+interface CalendarYear {
+  title: string;
+  races: Race[];
+}
+
 interface SimpleRaceChartProps {
   year: string;
   startRace?: number;
   endRace?: number;
   selectedTeams?: Set<string>;
 }
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName,
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
+const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
 export function SimpleRaceChart({ 
   year, 
@@ -25,7 +81,7 @@ export function SimpleRaceChart({
   
   // Get race locations from calendar
   const raceLocations = useMemo(() => {
-    const yearCalendar = calendarData[year as keyof typeof calendarData];
+    const yearCalendar = typedCalendarData[year];
     if (!yearCalendar) return [];
     return yearCalendar.races.map(race => race.location);
   }, [year]);
@@ -33,22 +89,22 @@ export function SimpleRaceChart({
   // Create chart data from team standings
   const data = useMemo(() => {
     // Find the year data
-    const yearData = teamStandings.find(d => d.year.toString() === year);
+    const yearData = typedTeamStandings.find(d => d.year.toString() === year);
     if (!yearData) return null;
     
     // Get team names and create color map
-    const teamNames = yearData.standings.map(team => team.driverName);
+    const teamNames = yearData.standings.map(team => team.teamName);
     const colorMap = createTeamColorMap(teamNames);
     
     // Create datasets for each team
     const datasets = yearData.standings
       .map(team => {
-        // Convert string scores to numbers
-        const sprintPoints = team.sprintRaceScores.map(score => parseInt(score, 10) || 0);
-        const featurePoints = team.featureRaceScores.map(score => parseInt(score, 10) || 0);
+        // Scores are already numbers from our data transformation
+        const sprintPoints = team.sprintRaceScores;
+        const featurePoints = team.featureRaceScores;
         
         // Calculate total points for each race
-        const totalPoints = sprintPoints.map((sprint, index) => 
+        const totalPoints = sprintPoints.map((sprint: number, index: number) => 
           sprint + (featurePoints[index] || 0)
         );
         
@@ -56,19 +112,19 @@ export function SimpleRaceChart({
         const slicedPoints = totalPoints.slice(startRace - 1, endRace);
         
         // Check if team has any points in the selected races
-        const hasPoints = slicedPoints.some(points => points > 0);
+        const hasPoints = slicedPoints.some((points: number) => points > 0);
         
         // Check if team is selected
-        const isSelected = selectedTeams ? selectedTeams.has(team.driverName) : true;
+        const isSelected = selectedTeams ? selectedTeams.has(team.teamName) : true;
         
         // Skip this team if it has no points or isn't selected
         if (!hasPoints || !isSelected) return null;
         
         return {
-          label: team.driverName,
-          data: slicedPoints.map(points => points || null),
-          backgroundColor: colorMap[team.driverName],
-          borderColor: colorMap[team.driverName],
+          label: team.teamName,
+          data: slicedPoints.map((points: number) => points || null),
+          backgroundColor: colorMap[team.teamName],
+          borderColor: colorMap[team.teamName],
           borderWidth: 1,
           borderRadius: 4,
           spanGaps: true
@@ -91,7 +147,7 @@ export function SimpleRaceChart({
     // Update datasets to only include races with points
     const filteredDatasets = datasets.map(dataset => ({
       ...dataset,
-      data: dataset.data.filter((value, index) => 
+      data: dataset.data.filter((_: any, index: number) => 
         datasets.some(d => {
           const points = d.data[index];
           return typeof points === 'number' && points > 0;

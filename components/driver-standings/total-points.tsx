@@ -6,6 +6,48 @@ import { useTheme } from "next-themes";
 import { createDriverColorMap } from "@/lib/chart-colors";
 import driverStandings from '@/results/driver-standings.json';
 
+// Interface for raw data from JSON
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for processed data
+interface DriverStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: DriverStanding[];
+}
+
+// Process the raw data to match our expected format
+const typedDriverStandings = (driverStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    driverName: standing.driverName,
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
 export function TotalPointsChart({ year }: { year: string }) {
   const [data, setData] = useState<any>(null);
   const { theme } = useTheme();
@@ -17,7 +59,7 @@ export function TotalPointsChart({ year }: { year: string }) {
     try {
       setLoading(true);
       setError(null);
-      const currentYear = driverStandings.find(d => d.year.toString() === year);
+      const currentYear = typedDriverStandings.find(d => d.year.toString() === year);
       
       if (!currentYear) {
         throw new Error('Year data not found');

@@ -9,6 +9,47 @@ import "@/lib/chart-config";
 import driverStandings from '@/results/driver-standings.json';
 import calendarData from '@/results/calendar.json';
 
+// Interface for raw data from JSON
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for processed data
+interface DriverStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: DriverStanding[];
+}
+
+interface Race {
+  startDate: string;
+  endDate: string;
+  month: string;
+  location: string;
+}
+
+interface CalendarYear {
+  title: string;
+  races: Race[];
+}
+
 interface RacePointsDistributionChartProps {
   year: string;
   startRace: number;
@@ -17,6 +58,21 @@ interface RacePointsDistributionChartProps {
   selectedDrivers?: Set<string>;
   useTopRightFilter?: boolean;
 }
+
+// Process the raw data to match our expected format
+const typedDriverStandings = (driverStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    driverName: standing.driverName,
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
+const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
 export function RacePointsDistributionChart({ 
   year, 
@@ -45,14 +101,14 @@ export function RacePointsDistributionChart({
 
   // Memoize year data
   const yearData = useMemo(() => {
-    const data = driverStandings.find(d => d.year.toString() === year);
+    const data = typedDriverStandings.find(d => d.year.toString() === year);
     if (!data) return null;
     return data;
   }, [year]);
 
   // Get race locations from calendar
   const raceLocations = useMemo(() => {
-    const yearCalendar = calendarData[year as keyof typeof calendarData];
+    const yearCalendar = typedCalendarData[year];
     if (!yearCalendar) return [];
     return yearCalendar.races.map(race => race.location);
   }, [year]);
@@ -111,12 +167,12 @@ export function RacePointsDistributionChart({
     const datasets = yearData.standings.map(driver => {
       const sprintPoints = driver.sprintRaceScores.map(Number);
       const featurePoints = driver.featureRaceScores.map(Number);
-      const totalPoints = sprintPoints.map((sprint, index) => 
+      const totalPoints = sprintPoints.map((sprint: number, index: number) => 
         sprint + (featurePoints[index] || 0)
       );
 
-      const slicedPoints = totalPoints.slice(startRace - 1, endRace).map(points => 
-        points === 0 ? null : points // Convert 0 to null to hide the bar
+      const slicedPoints = totalPoints.slice(startRace - 1, endRace).map((points: number) => 
+        points === 0 ? null : points
       );
 
       return {

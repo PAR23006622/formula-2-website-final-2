@@ -7,10 +7,66 @@ import { TeamFilter } from "./team-filter";
 import teamStandings from '@/results/team-standings.json';
 import calendarData from '@/results/calendar.json';
 
+// Interface for raw data from JSON
+interface RawStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface RawYearData {
+  year: number;
+  title: string;
+  standings: RawStanding[];
+}
+
+// Interface for processed data
+interface TeamStanding {
+  teamName: string;
+  totalPoints: string;
+  sprintRaceScores: number[];
+  featureRaceScores: number[];
+  position: number;
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: TeamStanding[];
+}
+
+interface Race {
+  startDate: string;
+  endDate: string;
+  month: string;
+  location: string;
+}
+
+interface CalendarYear {
+  title: string;
+  races: Race[];
+}
+
 interface CumulativePointsChartProps {
   year: string;
   externalSelectedTeams?: Set<string>;
 }
+
+// Process the raw data to match our expected format
+const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+  year: yearData.year,
+  title: yearData.title,
+  standings: yearData.standings.map((standing, index) => ({
+    teamName: standing.driverName, // Map driverName to teamName
+    totalPoints: standing.totalPoints,
+    sprintRaceScores: standing.sprintRaceScores.map(Number),
+    featureRaceScores: standing.featureRaceScores.map(Number),
+    position: index + 1
+  }))
+})) as YearData[];
+
+const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
 export function CumulativePointsChart({ year, externalSelectedTeams }: CumulativePointsChartProps) {
   const [data, setData] = useState<any>(null);
@@ -64,17 +120,17 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
   ], []);
 
   useEffect(() => {
-    const selectedYearData = teamStandings.find(d => d.year.toString() === year);
+    const selectedYearData = typedTeamStandings.find(d => d.year.toString() === year);
     if (!selectedYearData) return;
 
-    const teamNames = selectedYearData.standings.map(team => team.driverName);
+    const teamNames = selectedYearData.standings.map(team => team.teamName);
     setAllTeams(teamNames);
     setSelectedTeams(new Set(teamNames));
   }, [year]);
 
   // Get race locations from calendar
   const raceLocations = useMemo(() => {
-    const yearCalendar = calendarData[year as keyof typeof calendarData];
+    const yearCalendar = typedCalendarData[year];
     if (!yearCalendar) return [];
     return yearCalendar.races.map(race => race.location);
   }, [year]);
@@ -83,7 +139,7 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
   const effectiveSelectedTeams = externalSelectedTeams || selectedTeams;
 
   useEffect(() => {
-    const selectedYearData = teamStandings.find(d => d.year.toString() === year);
+    const selectedYearData = typedTeamStandings.find(d => d.year.toString() === year);
     if (!selectedYearData) return;
 
     const datasets = selectedYearData.standings.map((team, index) => {
@@ -98,7 +154,7 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
       }
 
       return {
-        label: team.driverName,
+        label: team.teamName,
         data: cumulativePoints,
         borderColor: teamColors[index % teamColors.length],
         backgroundColor: teamColors[index % teamColors.length],
@@ -110,7 +166,7 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
         pointBorderWidth: 1,
         tension: 0.1,
         fill: false,
-        hidden: !effectiveSelectedTeams.has(team.driverName)
+        hidden: !effectiveSelectedTeams.has(team.teamName)
       };
     }).filter(Boolean);
 
