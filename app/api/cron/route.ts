@@ -3,7 +3,6 @@ import { scrapeDriverStandings } from '../../../api/driver-standings';
 import { scrapeTeamStandings } from '../../../api/team-standings';
 import { scrapeCalendar } from '../../../api/calendar';
 import { scrapeTeamsAndDrivers } from '../../../api/teams-and-drivers';
-import { put } from '@vercel/blob';
 
 // Set runtime to edge for better performance
 export const runtime = 'edge';
@@ -17,36 +16,29 @@ async function triggerScraper() {
         // Driver Standings
         console.log('Scraping driver standings...');
         const driverStandings = await scrapeDriverStandings();
-        await put('driver-standings.json', JSON.stringify(driverStandings), {
-            access: 'public',
-            addRandomSuffix: false
-        });
         
         // Team Standings
         console.log('Scraping team standings...');
         const teamStandings = await scrapeTeamStandings();
-        await put('team-standings.json', JSON.stringify(teamStandings), {
-            access: 'public',
-            addRandomSuffix: false
-        });
         
         // Calendar
         console.log('Scraping calendar...');
         const calendar = await scrapeCalendar();
-        await put('calendar.json', JSON.stringify(calendar), {
-            access: 'public',
-            addRandomSuffix: false
-        });
         
         // Teams and Drivers
         console.log('Scraping teams and drivers...');
         const teamsAndDrivers = await scrapeTeamsAndDrivers();
-        await put('teams-and-drivers.json', JSON.stringify(teamsAndDrivers), {
-            access: 'public',
-            addRandomSuffix: false
-        });
 
-        return { success: true, message: 'All data scraped and saved successfully' };
+        return { 
+            success: true, 
+            message: 'All data scraped successfully',
+            data: {
+                driverStandings,
+                teamStandings,
+                calendar,
+                teamsAndDrivers
+            }
+        };
     } catch (error: unknown) {
         console.error('Error in scraping cycle:', error);
         return { 
