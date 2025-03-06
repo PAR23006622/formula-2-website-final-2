@@ -4,8 +4,8 @@ import { scrapeTeamStandings } from '../../../api/team-standings';
 import { scrapeCalendar } from '../../../api/calendar';
 import { scrapeTeamsAndDrivers } from '../../../api/teams-and-drivers';
 
-// Set runtime to edge for better performance
-export const runtime = 'edge';
+// Use Node.js runtime instead of Edge
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 async function triggerScraper() {
