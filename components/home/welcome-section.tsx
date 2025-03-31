@@ -43,7 +43,19 @@ export function WelcomeSection() {
             </p>
           </CardContent>
         </Card>
+
       </div>
+
+      <Card className="chart-card h-auto w-200">
+          <CardContent className="py-4 text-center">
+            <h3 className="text-2xl font-bold text-center">Twitter Feed</h3>
+          </CardContent>
+        </Card>
+
+      <Card className="chart-card h-auto">
+        <script src="https://static.elfsight.com/platform/platform.js" async></script>
+        <div className="elfsight-app-1f6bb0a7-3251-4475-93ba-bcdd145d2473" data-elfsight-app-lazy></div>
+      </Card>
     </div>
   );
 }

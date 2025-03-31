@@ -620,5 +620,16 @@
         "location": "Yas Island"
       }
     ]
+  },
+  "2025": {
+    "title": "Calendar Formula 2 2025",
+    "races": [
+      {
+        "startDate": "14",
+        "endDate": "16",
+        "month": "March",
+        "location": "Melbourne"
+      }
+    ]
   }
 }

@@ -60,6 +60,7 @@ export function AveragePointsChart({ year }: { year: string }) {
       setLoading(true);
       setError(null);
       const currentYear = typedDriverStandings.find(d => d.year.toString() === year);
+      console.log('Current Year Data:', currentYear);
       
       if (!currentYear) {
         throw new Error('Year data not found');
@@ -164,6 +165,7 @@ export function AveragePointsChart({ year }: { year: string }) {
   }
 
   if (error) {
+    console.error('Error loading data:', error);
     return (
       <div className="flex items-center justify-center h-full text-red-500">
         <p>{error}</p>

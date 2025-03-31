@@ -192,7 +192,7 @@ export function RacePointsDistributionChart({
     };
 
     return chartData;
-  }, [yearData, startRace, endRace, colorMap, selectedDrivers, raceLocations, year]);
+  }, [yearData, startRace, endRace, colorMap, selectedDrivers, raceLocations]);
 
   // Memoize chart options
   const options = useMemo(() => {

@@ -51,6 +51,7 @@ interface CalendarYear {
 interface CumulativePointsChartProps {
   year: string;
   externalSelectedDrivers?: Set<string>;
+  onDriverSelectionChange?: (drivers: Set<string>) => void;
 }
 
 // Process the raw data to match our expected format
@@ -68,7 +69,7 @@ const typedDriverStandings = (driverStandings as RawYearData[]).map(yearData => 
 
 const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
-export function CumulativePointsChart({ year, externalSelectedDrivers }: CumulativePointsChartProps) {
+export function CumulativePointsChart({ year, externalSelectedDrivers, onDriverSelectionChange }: CumulativePointsChartProps) {
   const [data, setData] = useState<any>(null);
   const { theme } = useTheme();
   const [options, setOptions] = useState({});

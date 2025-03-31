@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Select,
   SelectContent,
@@ -18,9 +18,12 @@ import { PointsDistributionPie } from "../../components/team-standings/points-di
 import { TeamFilter } from "../../components/team-standings/team-filter";
 import teamStandings from '@/results/team-standings.json';
 
+// Debug data loading
+console.log('Initial team standings data:', teamStandings);
+
 // Interface matching the actual JSON data structure
 interface RawStanding {
-  driverName: string;
+  teamName: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
@@ -48,11 +51,11 @@ interface YearData {
 }
 
 // Process the raw data to match our expected format
-const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+const typedTeamStandings = (teamStandings as unknown as RawYearData[]).map(yearData => ({
   year: yearData.year,
   title: yearData.title,
   standings: yearData.standings.map((standing, index) => ({
-    teamName: standing.driverName, // Map driverName to teamName
+    teamName: standing.teamName,
     totalPoints: standing.totalPoints,
     sprintRaceScores: standing.sprintRaceScores.map(Number),
     featureRaceScores: standing.featureRaceScores.map(Number),
@@ -62,19 +65,56 @@ const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
 
 export default function TeamStandings() {
   const [selectedYear, setSelectedYear] = useState("2024");
-  const years = Array.from(new Set(typedTeamStandings.map(d => d.year.toString()))).sort((a, b) => b.localeCompare(a));
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [selectedTeams, setSelectedTeams] = useState<Set<string>>(new Set());
   const [allTeams, setAllTeams] = useState<string[]>([]);
 
-  // Initialize teams data
-  useState(() => {
-    const yearData = typedTeamStandings.find(d => d.year.toString() === selectedYear);
-    if (yearData) {
-      const teams = yearData.standings.map(team => team.teamName);
-      setAllTeams(teams);
-      setSelectedTeams(new Set(teams));
+  // Debug data loading
+  useEffect(() => {
+    console.log('Current state:', {
+      selectedYear,
+      dataLoaded,
+      selectedTeams: Array.from(selectedTeams),
+      allTeams
+    });
+  }, [selectedYear, dataLoaded, selectedTeams, allTeams]);
+
+  // Add debug logging
+  useEffect(() => {
+    try {
+      console.log('Raw team standings:', teamStandings);
+      const years = Array.from(new Set(typedTeamStandings.map(d => d.year.toString())));
+      console.log('Available years:', years);
+      
+      if (years.length > 0) {
+        // Set the most recent year as default
+        const mostRecentYear = years.sort((a, b) => b.localeCompare(a))[0];
+        setSelectedYear(mostRecentYear);
+      }
+      
+      setDataLoaded(true);
+    } catch (err) {
+      console.error('Error loading data:', err);
     }
-  });
+  }, []);
+
+  // Initialize teams data with debug logging
+  useEffect(() => {
+    try {
+      console.log('Looking for year data:', selectedYear);
+      const yearData = typedTeamStandings.find(d => d.year.toString() === selectedYear);
+      console.log('Found year data:', yearData);
+      
+      if (yearData) {
+        const teams = yearData.standings.map(team => team.teamName);
+        console.log('Found teams:', teams);
+        setAllTeams(teams);
+        setSelectedTeams(new Set(teams));
+      }
+    } catch (err) {
+      console.error('Error initializing teams:', err);
+    }
+  }, [selectedYear]);
 
   // Toggle team selection
   const toggleTeam = (teamName: string) => {
@@ -109,7 +149,7 @@ export default function TeamStandings() {
               <SelectValue placeholder="Select Year" />
             </SelectTrigger>
             <SelectContent>
-              {years.map(year => (
+              {Array.from(new Set(typedTeamStandings.map(d => d.year.toString()))).sort((a, b) => b.localeCompare(a)).map(year => (
                 <SelectItem key={year} value={year}>
                   {year} Season
                 </SelectItem>

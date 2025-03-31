@@ -1,8 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartDescription } from "@/components/ui/chart-description";
+import { cn } from "@/lib/utils";
 
 interface ChartContainerProps {
   title: string;
@@ -19,17 +18,22 @@ export function LargeChartContainer({
   className = ""
 }: ChartContainerProps) {
   return (
-    <Card className={`chart-card h-[445px] px-6 py-1 ${className}`}>
-      <CardHeader className="pb-2 px-0 pt-4">
-        {title && <CardTitle>{title}</CardTitle>}
-        {description && <ChartDescription className="text-sm text-muted-foreground">{description}</ChartDescription>}
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="w-full h-[400px]">
-          {children}
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      className={cn(
+        "bg-white dark:bg-[#1f2937] rounded-3xl p-6 border shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 dark:border-gray-800",
+        className
+      )}
+    >
+      <div className="mb-4">
+        <h3 className="text-xl font-semibold">{title}</h3>
+        <p className="text-muted-foreground text-sm">
+          {description}
+        </p>
+      </div>
+      <div className="h-[400px]">
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -37,20 +41,25 @@ export function LargeChartContainer({
 export function ChartContainer({ 
   title, 
   description, 
-  children, 
+  children,
   className = ""
 }: ChartContainerProps) {
   return (
-    <Card className={`chart-card h-[580px] px-6 py-1 ${className}`}>
-      <CardHeader className="pb-2 px-0 pt-4">
-        {title && <CardTitle>{title}</CardTitle>}
-        {description && <ChartDescription className="text-sm text-muted-foreground">{description}</ChartDescription>}
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="w-full h-[350px]">
-          {children}
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      className={cn(
+        "bg-white dark:bg-[#1f2937] rounded-3xl p-6 border shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 dark:border-gray-800",
+        className
+      )}
+    >
+      <div className="mb-4">
+        <h3 className="text-xl font-semibold">{title}</h3>
+        <p className="text-muted-foreground text-sm">
+          {description}
+        </p>
+      </div>
+      <div className="h-[400px]">
+        {children}
+      </div>
+    </div>
   );
 }

@@ -55,6 +55,11 @@ export function Footer() {
                     </Link>
                   </li>
                   <li>
+                    <Link href="/teams-drivers" className={linkStyles}>
+                      Teams & Drivers
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/calendar" className={linkStyles}>
                       Race Calendar
                     </Link>

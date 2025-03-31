@@ -3,6 +3,20 @@
 import { Bar } from "react-chartjs-2";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import driverStandings from '@/results/driver-standings.json';
+
+interface DriverStanding {
+  driverName: string;
+  totalPoints: string;
+  sprintRaceScores: string[];
+  featureRaceScores: string[];
+}
+
+interface YearData {
+  year: number;
+  title: string;
+  standings: DriverStanding[];
+}
 
 interface TopDriversChartProps {
   year: string;
@@ -16,20 +30,19 @@ export function TopDriversChart({ year }: TopDriversChartProps) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch('/api/driver-standings');
-        const standings = await response.json();
-        const currentYear = standings[standings.length - 1];
+        const yearData = (driverStandings as YearData[]).find(d => d.year.toString() === year);
+        if (!yearData) return;
         
         // Sort drivers by total points and get top 5
-        const topDrivers = [...currentYear.standings]
+        const topDrivers = [...yearData.standings]
           .sort((a, b) => parseInt(b.totalPoints) - parseInt(a.totalPoints))
           .slice(0, 5);
 
         const chartData = {
-          labels: topDrivers.map((driver: any) => driver.driverName),
+          labels: topDrivers.map((driver: DriverStanding) => driver.driverName),
           datasets: [{
             label: 'Total Points',
-            data: topDrivers.map((driver: any) => parseInt(driver.totalPoints)),
+            data: topDrivers.map((driver: DriverStanding) => parseInt(driver.totalPoints)),
             backgroundColor: [
               'rgba(255, 51, 102, 0.8)',
               'rgba(51, 102, 255, 0.8)',
@@ -55,7 +68,7 @@ export function TopDriversChart({ year }: TopDriversChartProps) {
     }
     
     fetchData();
-  }, []);
+  }, [year]);
 
   useEffect(() => {
     const updateOptions = () => {

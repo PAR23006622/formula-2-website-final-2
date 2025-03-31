@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChartContainer, LargeChartContainer } from "@/components/driver-standings/chart-container";
+import { ChartContainer } from "@/components/driver-standings/chart-container";
 import { TotalPointsChart } from "@/components/driver-standings/total-points";
 import { RaceTypePointsChart } from "@/components/driver-standings/race-type-points";
 import { CumulativePointsChart } from "@/components/driver-standings/cumulative-points";
@@ -42,6 +42,43 @@ export default function DriverStandings() {
   const [selectedDrivers, setSelectedDrivers] = useState<Set<string>>(new Set());
   const [allDrivers, setAllDrivers] = useState<string[]>([]);
 
+  // Fetch data when the component mounts
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('/api/driver-standings');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch standings data: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Fetched data:', data); // Log the fetched data
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error('Invalid data format received from server');
+        }
+        
+        const availableYears = data
+          .map((d: any) => d.year.toString())
+          .sort((a: string, b: string) => Number(b) - Number(a));
+        
+        console.log('Available years:', availableYears); // Log available years
+        setYears(availableYears);
+        setSelectedYear(availableYears[0]); // Set default selected year
+      } catch (error) {
+        console.error('Error loading standings data:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []); // Only run on mount
+
   // Initialize drivers data when year changes
   useEffect(() => {
     const yearData = driverStandings.find((d: YearData) => d.year.toString() === selectedYear);
@@ -72,93 +109,23 @@ export default function DriverStandings() {
     );
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch('/api/driver-standings');
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch standings data: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error('Invalid data format received from server');
-        }
-        
-        const availableYears = data
-          .map((d: any) => d.year.toString())
-          .sort((a: string, b: string) => Number(b) - Number(a));
-        
-        setYears(availableYears);
-        
-        if (!data.find((d: any) => d.year.toString() === selectedYear)) {
-          setSelectedYear(availableYears[0]);
-        }
-      } catch (error) {
-        console.error('Error loading standings data:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    }
+  const handleDriverSelectionChange = (drivers: Set<string>) => {
+    setSelectedDrivers(drivers);
+  };
 
-    fetchData();
-  }, [selectedYear]);
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-center mb-8">Driver Standings & Analytics</h1>
-        <div className="flex justify-center">
-          <div className="animate-pulse space-y-8 w-full max-w-3xl">
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-48 mx-auto"></div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-center mb-8">Driver Standings & Analytics</h1>
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription className="flex items-center gap-2">
-            <RotateCw className="h-4 w-4" />
-            {error}
-          </AlertDescription>
-        </Alert>
-        <button
-          onClick={() => window.location.reload()}
-          className="mx-auto block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
+  // Render charts immediately
   return (
     <>
       <StructuredData data={generateWebsiteSchema()} />
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">Driver Standings & Analytics</h1>
-          <div className="w-45">
+          <h1 className="text-3xl font-bold mb-4">Driver Standings & Analytics</h1>
+          <div className="">
             <Select
               value={selectedYear}
               onValueChange={setSelectedYear}
             >
-              <SelectTrigger className="">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select Year" />
               </SelectTrigger>
               <SelectContent>
@@ -171,92 +138,100 @@ export default function DriverStandings() {
             </Select>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 gap-6">
-          {/* Line Charts - Full Width */}
-          <div className="space-y-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="md:col-span-2 space-y-4">
             <div className="flex justify-between items-center">
-              <div className="flex justify-between items-center w-full">
+              <div>
                 <h3 className="text-xl font-semibold">Cumulative Points</h3>
-                <DriverFilter
-                  drivers={allDrivers}
-                  selectedDrivers={selectedDrivers}
-                  onToggleDriver={toggleDriver}
-                  onToggleAll={toggleAllDrivers}
-                />
               </div>
+              <DriverFilter
+                drivers={allDrivers}
+                selectedDrivers={selectedDrivers}
+                onToggleDriver={toggleDriver}
+                onToggleAll={toggleAllDrivers}
+              />
             </div>
             
-            <div className="card p-4 rounded-lg border bg-white text-card-foreground shadow-sm hover:shadow-[0_0_15px_rgba(0,144,208,0.3)] transition-shadow duration-200 h-[570px] dark:bg-[#1f2937] dark:border-gray-800">
+            <div className="card p-4 rounded-lg border bg-white text-card-foreground shadow-sm h-[550px] dark:bg-[#1f2937] dark:border-gray-800">
               <div className="mb-4">
                 <p className="text-muted-foreground text-sm">
                   Track how drivers accumulate championship points throughout the season.
                 </p>
               </div>
-              <div className="h-[500px]">
+              <div className="h-[calc(100%-2rem)]">
                 <CumulativePointsChart 
                   year={selectedYear} 
                   externalSelectedDrivers={selectedDrivers}
+                  onDriverSelectionChange={handleDriverSelectionChange}
                 />
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold py-4">Total Points Per Race - Drivers Performance Overview</h3>
-                <DriverFilter
-                  drivers={allDrivers}
-                  selectedDrivers={selectedDrivers}
-                  onToggleDriver={toggleDriver}
-                  onToggleAll={toggleAllDrivers}
-                />
-              </div>
-              <RacePointsCarousel 
-                year={selectedYear}
-                selectedDrivers={selectedDrivers}
-              />
             </div>
           </div>
 
-          {/* Other Charts - Grid Layout */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <ChartContainer 
-              title="Total Points per Driver" 
-              description="Bar chart showing the total championship points accumulated by each driver, providing a clear view of the overall standings."
-            >
-              <TotalPointsChart year={selectedYear} />
-            </ChartContainer>
-            
-            <ChartContainer 
-              title="Sprint vs Feature Race Points" 
-              description="Comparison of points earned in sprint races versus feature races for each driver, highlighting performance across different race formats."
-            >
-              <RaceTypePointsChart year={selectedYear} />
-            </ChartContainer>
-            
-            <ChartContainer 
-              title="Top 5 Drivers Comparison" 
-              description="Focused comparison of the championship's leading drivers, showing their total points and relative performance."
-            >
-              <TopDriversChart year={selectedYear} />
-            </ChartContainer>
-            
-            <ChartContainer 
-              title="Average Points per Race" 
-              description="Bar chart displaying each driver's average points scored per race, indicating consistent performance levels."
-            >
-              <AveragePointsChart year={selectedYear} />
-            </ChartContainer>
-            
-            <ChartContainer 
-              title="Points Distribution by Race Type" 
-              description="Pie chart showing the overall distribution of points between sprint races and feature races across all drivers."
-            >
-              <PointsDistributionPieChart year={selectedYear} />
-            </ChartContainer>
+          <div className="md:col-span-2">
+            <RacePointsCarousel 
+              year={selectedYear}
+              selectedDrivers={selectedDrivers}
+              onDriverSelectionChange={handleDriverSelectionChange}
+            />
           </div>
+
+          <ChartContainer 
+            title="Total Points per Driver" 
+            description="Bar chart showing the total championship points accumulated by each driver, providing a clear view of the overall standings."
+          >
+            <TotalPointsChart year={selectedYear} />
+          </ChartContainer>
+          
+          <ChartContainer 
+            title="Sprint vs Feature Race Points" 
+            description="Comparison of points earned in sprint races versus feature races for each driver, highlighting performance across different race formats."
+          >
+            
+            <RaceTypePointsChart year={selectedYear} />
+          </ChartContainer>
+          
+          <ChartContainer 
+            title="Top 5 Drivers Comparison" 
+            description="Focused comparison of the championship's leading drivers, showing their total points and relative performance."
+          >
+            <TopDriversChart year={selectedYear} />
+          </ChartContainer>
+          
+          <ChartContainer 
+            title="Average Points per Race" 
+            description="Bar chart displaying each driver's average points scored per race, indicating consistent performance levels."
+          >
+            <AveragePointsChart year={selectedYear} />
+          </ChartContainer>
+          
+          <ChartContainer 
+            title="Points Distribution by Race Type" 
+            description="Pie chart showing the overall distribution of points between sprint races and feature races across all drivers."
+          >
+            <PointsDistributionPieChart year={selectedYear} />
+          </ChartContainer>
         </div>
       </div>
+      
+      {/* Error Handling */}
+      {error && (
+        <div className="container mx-auto px-4 py-6">
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription className="flex items-center gap-2">
+              <RotateCw className="h-4 w-4" />
+              {error}
+            </AlertDescription>
+          </Alert>
+          <button
+            onClick={() => window.location.reload()}
+            className="mx-auto block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
     </>
   );
 }

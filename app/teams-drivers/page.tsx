@@ -14,7 +14,7 @@ import { generateWebsiteSchema } from "@/lib/schema";
 import teamsAndDrivers from '@/results/teams-and-drivers.json';
 
 export default function TeamsDrivers() {
-  const [selectedYear, setSelectedYear] = useState<string>("2024");
+  const [selectedYear, setSelectedYear] = useState<string>("2025");
   const [years, setYears] = useState<string[]>([]);
 
   useEffect(() => {

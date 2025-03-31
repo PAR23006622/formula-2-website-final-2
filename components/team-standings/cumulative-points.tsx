@@ -9,7 +9,7 @@ import calendarData from '@/results/calendar.json';
 
 // Interface for raw data from JSON
 interface RawStanding {
-  driverName: string;
+  teamName: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
@@ -54,17 +54,17 @@ interface CumulativePointsChartProps {
 }
 
 // Process the raw data to match our expected format
-const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+const typedTeamStandings = (teamStandings as unknown as RawYearData[]).map(yearData => ({
   year: yearData.year,
   title: yearData.title,
   standings: yearData.standings.map((standing, index) => ({
-    teamName: standing.driverName, // Map driverName to teamName
+    teamName: standing.teamName,
     totalPoints: standing.totalPoints,
     sprintRaceScores: standing.sprintRaceScores.map(Number),
     featureRaceScores: standing.featureRaceScores.map(Number),
     position: index + 1
   }))
-})) as YearData[];
+}));
 
 const typedCalendarData = calendarData as Record<string, CalendarYear>;
 
@@ -119,62 +119,73 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
     '#0099CC', // Light Blue
   ], []);
 
+  // Initialize teams data
   useEffect(() => {
-    const selectedYearData = typedTeamStandings.find(d => d.year.toString() === year);
-    if (!selectedYearData) return;
+    try {
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
+      if (yearData) {
+        const teams = yearData.standings.map(team => team.teamName);
+        setAllTeams(teams);
+        if (!externalSelectedTeams) {
+          setSelectedTeams(new Set(teams));
+        }
+      }
+    } catch (error) {
+      // Handle error silently or show user-facing error
+    }
+  }, [year, externalSelectedTeams]);
 
-    const teamNames = selectedYearData.standings.map(team => team.teamName);
-    setAllTeams(teamNames);
-    setSelectedTeams(new Set(teamNames));
-  }, [year]);
-
-  // Get race locations from calendar
-  const raceLocations = useMemo(() => {
-    const yearCalendar = typedCalendarData[year];
-    if (!yearCalendar) return [];
-    return yearCalendar.races.map(race => race.location);
-  }, [year]);
-
-  // Use external selected teams if provided
-  const effectiveSelectedTeams = externalSelectedTeams || selectedTeams;
-
+  // Update data when teams change
   useEffect(() => {
-    const selectedYearData = typedTeamStandings.find(d => d.year.toString() === year);
-    if (!selectedYearData) return;
-
-    const datasets = selectedYearData.standings.map((team, index) => {
-      const sprintPoints = team.sprintRaceScores.map(Number);
-      const featurePoints = team.featureRaceScores.map(Number);
-      let cumulative = 0;
-      const cumulativePoints = [];
-      
-      for (let i = 0; i < Math.max(sprintPoints.length, featurePoints.length); i++) {
-        cumulative += (sprintPoints[i] || 0) + (featurePoints[i] || 0);
-        cumulativePoints.push(cumulative);
+    try {
+      const selectedYearData = typedTeamStandings.find(d => d.year.toString() === year);
+      if (!selectedYearData) {
+        console.error('No data found for year:', year);
+        return;
       }
 
-      return {
-        label: team.teamName,
-        data: cumulativePoints,
-        borderColor: teamColors[index % teamColors.length],
-        backgroundColor: teamColors[index % teamColors.length],
-        borderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        pointBackgroundColor: teamColors[index % teamColors.length],
-        pointBorderColor: teamColors[index % teamColors.length],
-        pointBorderWidth: 1,
-        tension: 0.1,
-        fill: false,
-        hidden: !effectiveSelectedTeams.has(team.teamName)
-      };
-    }).filter(Boolean);
+      const effectiveTeams = externalSelectedTeams || selectedTeams;
+      console.log('Effective teams:', effectiveTeams);
 
-    setData({
-      labels: raceLocations.slice(0, Math.max(...datasets.map(d => d.data.length))),
-      datasets
-    });
-  }, [year, effectiveSelectedTeams, isMobile, teamColors, theme, raceLocations]);
+      const datasets = selectedYearData.standings
+        .filter(team => effectiveTeams.has(team.teamName))
+        .map((team, index) => {
+          const sprintPoints = team.sprintRaceScores;
+          const featurePoints = team.featureRaceScores;
+          let cumulative = 0;
+          const cumulativePoints = [];
+          
+          for (let i = 0; i < Math.max(sprintPoints.length, featurePoints.length); i++) {
+            cumulative += (sprintPoints[i] || 0) + (featurePoints[i] || 0);
+            cumulativePoints.push(cumulative);
+          }
+
+          return {
+            label: team.teamName,
+            data: cumulativePoints,
+            borderColor: teamColors[index % teamColors.length],
+            backgroundColor: teamColors[index % teamColors.length],
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            tension: 0.1,
+            fill: false
+          };
+        });
+
+      const yearCalendar = typedCalendarData[year];
+      const locations = yearCalendar ? yearCalendar.races.map(race => race.location) : [];
+
+      setData({
+        labels: locations.slice(0, Math.max(...datasets.map(d => d.data.length))),
+        datasets
+      });
+
+      console.log('Updated chart data:', datasets);
+    } catch (error) {
+      console.error('Error updating data:', error);
+    }
+  }, [year, selectedTeams, externalSelectedTeams, teamColors]);
 
   useEffect(() => {
     const textColor = theme === 'dark' ? '#fff' : '#000';
@@ -258,10 +269,22 @@ export function CumulativePointsChart({ year, externalSelectedTeams }: Cumulativ
     });
   }, [theme, isMobile]);
 
-  if (!data) return null;
+  if (!data) {
+    return <div className="text-center">Loading data...</div>;
+  }
 
   return (
     <div>
+      {!externalSelectedTeams && (
+        <div className="mb-4">
+          <TeamFilter
+            teams={allTeams}
+            selectedTeams={selectedTeams}
+            onToggleTeam={toggleTeam}
+            onToggleAll={toggleAllTeams}
+          />
+        </div>
+      )}
       <div className={`${isMobile ? 'h-[400px]' : 'h-[500px]'}`}>
         <Line data={data} options={options} />
       </div>

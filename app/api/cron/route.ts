@@ -1,63 +1,57 @@
-import { NextResponse } from 'next/server';
-import { scrapeDriverStandings } from '../../../api/driver-standings';
-import { scrapeTeamStandings } from '../../../api/team-standings';
-import { scrapeCalendar } from '../../../api/calendar';
-import { scrapeTeamsAndDrivers } from '../../../api/teams-and-drivers';
+import { scrapeDriverStandings } from '../driver-standings';
+import { scrapeTeamStandings } from '../team-standings';
+import { scrapeTeamsAndDrivers } from '../teams-and-drivers';
+import { scrapeCalendar } from '../calendar';
 
-// Use Node.js runtime instead of Edge
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // 1 minute
 
-async function triggerScraper() {
-    try {
-        // Scrape all data
-        console.log('Starting scraping cycle...');
-        
-        // Driver Standings
-        console.log('Scraping driver standings...');
-        const driverStandings = await scrapeDriverStandings();
-        
-        // Team Standings
-        console.log('Scraping team standings...');
-        const teamStandings = await scrapeTeamStandings();
-        
-        // Calendar
-        console.log('Scraping calendar...');
-        const calendar = await scrapeCalendar();
-        
-        // Teams and Drivers
-        console.log('Scraping teams and drivers...');
-        const teamsAndDrivers = await scrapeTeamsAndDrivers();
-
-        return { 
-            success: true, 
-            message: 'All data scraped successfully',
-            data: {
-                driverStandings,
-                teamStandings,
-                calendar,
-                teamsAndDrivers
-            }
-        };
-    } catch (error: unknown) {
-        console.error('Error in scraping cycle:', error);
-        return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'An unknown error occurred' 
-        };
+export async function GET(request: Request) {
+    // Verify the request is from Vercel Cron
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return new Response('Unauthorized', { status: 401 });
     }
-}
 
-export async function GET() {
     try {
-        const result = await triggerScraper();
-        return NextResponse.json(result);
-    } catch (error: unknown) {
-        return NextResponse.json(
-            { 
-                error: error instanceof Error ? error.message : 'Failed to run scraping cycle' 
-            },
-            { status: 500 }
-        );
+        console.log('Starting scheduled data update...');
+
+        // Run scrapers sequentially
+        console.log('Running Driver Standings Scraper...');
+        await scrapeDriverStandings();
+
+        console.log('Running Team Standings Scraper...');
+        await scrapeTeamStandings();
+
+        console.log('Running Calendar Scraper...');
+        await scrapeCalendar();
+
+        console.log('Running Teams and Drivers Scraper...');
+        await scrapeTeamsAndDrivers();
+
+        console.log('All scrapers completed successfully!');
+
+        return new Response(JSON.stringify({
+            success: true,
+            message: 'All scrapers completed successfully'
+        }), {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+    } catch (error) {
+        console.error('Error running scrapers:', error);
+        return new Response(JSON.stringify({
+            success: false,
+            error: 'Failed to run scrapers'
+        }), {
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
     }
 }

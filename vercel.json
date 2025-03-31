@@ -1,0 +1,15 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 1 * * *"
+    }
+  ],
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "functions": {
+    "app/api/cron/route.ts": {
+      "maxDuration": 60
+    }
+  }
+} 

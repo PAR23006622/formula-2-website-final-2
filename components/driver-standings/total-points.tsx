@@ -60,6 +60,7 @@ export function TotalPointsChart({ year }: { year: string }) {
       setLoading(true);
       setError(null);
       const currentYear = typedDriverStandings.find(d => d.year.toString() === year);
+      console.log('Current Year Data:', currentYear);
       
       if (!currentYear) {
         throw new Error('Year data not found');

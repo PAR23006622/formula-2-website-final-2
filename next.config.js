@@ -7,7 +7,8 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'www.fiaformula2.com',
-        pathname: '/Teams-and-Drivers/**',
+        port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -21,10 +22,38 @@ const nextConfig = {
       }
     ]
   },
-  // Add experimental features for better data handling
   experimental: {
-    serverComponentsExternalPackages: ['puppeteer']
+    serverComponentsExternalPackages: ['chrome-aws-lambda', 'puppeteer-core']
+  },
+  env: {
+    // Set this to indicate we're in build phase
+    NEXT_PHASE: process.env.NEXT_PHASE || ''
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push({
+        'puppeteer-core': 'puppeteer-core',
+        'chrome-aws-lambda': 'chrome-aws-lambda'
+      });
+    }
+    // Ignore source maps for chrome-aws-lambda
+    config.module.rules.push({
+      test: /\.map$/,
+      use: 'ignore-loader',
+    });
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'sharp$': false,
+      'onnxruntime-node$': false,
+    }
+    return config;
   }
 };
+
+// Set the NEXT_PHASE environment variable during build
+if (process.env.npm_lifecycle_event === 'build') {
+  process.env.NEXT_PHASE = 'phase-production-build';
+  console.log('Setting NEXT_PHASE to phase-production-build');
+}
 
 module.exports = nextConfig;

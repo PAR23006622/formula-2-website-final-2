@@ -18,7 +18,7 @@ import "@/lib/chart-config";
 
 // Interface for raw data from JSON
 interface RawStanding {
-  driverName: string;
+  teamName: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
@@ -63,11 +63,11 @@ interface RacePointsCarouselProps {
 }
 
 // Process the raw data to match our expected format
-const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+const typedTeamStandings = (teamStandings as unknown as RawYearData[]).map(yearData => ({
   year: yearData.year,
   title: yearData.title,
   standings: yearData.standings.map((standing, index) => ({
-    teamName: standing.driverName, // Map driverName to teamName
+    teamName: standing.teamName,
     totalPoints: standing.totalPoints,
     sprintRaceScores: standing.sprintRaceScores.map(Number),
     featureRaceScores: standing.featureRaceScores.map(Number),
@@ -86,10 +86,6 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
   const [allTeams, setAllTeams] = useState<string[]>([]);
   const [raceLocations, setRaceLocations] = useState<string[]>([]);
 
-  const racesPerPage = 2;
-  const totalRaces = 14; // Total number of races in a season
-  const totalPages = Math.ceil(totalRaces / racesPerPage);
-
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
@@ -100,13 +96,14 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
   useEffect(() => {
     if (!api) return;
     
-    setCount(api.scrollSnapList().length);
+    const pairCount = Math.ceil(raceLocations.length / 2);
+    setCount(pairCount);
     setCurrentPage(api.selectedScrollSnap());
 
     api.on("select", () => {
       setCurrentPage(api.selectedScrollSnap());
     });
-  }, [api]);
+  }, [api, raceLocations.length]);
 
   // Get race locations from calendar
   useEffect(() => {
@@ -118,19 +115,23 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
 
   // Initialize teams data
   useEffect(() => {
-    const yearData = typedTeamStandings.find(d => d.year.toString() === year);
-    if (yearData) {
-      const teams = yearData.standings.map(team => team.teamName);
-      setAllTeams(teams);
-      if (!externalSelectedTeams) {
-        setSelectedTeams(new Set(teams));
+    try {
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
+      if (yearData) {
+        const teams = yearData.standings.map(team => team.teamName);
+        setAllTeams(teams);
+        if (!externalSelectedTeams) {
+          setSelectedTeams(new Set(teams));
+        }
       }
+    } catch (error) {
+      // Handle error silently or show user-facing error
     }
   }, [year, externalSelectedTeams]);
 
   // Toggle team selection
   const toggleTeam = (teamName: string) => {
-    if (externalSelectedTeams) return; // Don't modify if using external selection
+    if (externalSelectedTeams) return;
     setSelectedTeams(prev => {
       const newSet = new Set(prev);
       if (newSet.has(teamName)) {
@@ -155,9 +156,9 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
     const totalRaces = raceLocations.length;
     const pairs = [];
     
-    for (let i = 1; i <= totalRaces; i += 2) {
-      if (i + 1 <= totalRaces) {
-        // Add a pair of races
+    for (let i = 0; i < totalRaces; i += 2) {
+      if (i + 1 < totalRaces) {
+        // Add a pair of races (using 0-based index)
         pairs.push([i, i + 1]);
       } else {
         // Add the last race by itself if there's an odd number
@@ -168,17 +169,6 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
     return pairs;
   }, [raceLocations]);
 
-  const handlePrevious = () => {
-    setCurrentPage((prev) => (prev > 0 ? prev - 1 : prev));
-  };
-
-  const handleNext = () => {
-    setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : prev));
-  };
-
-  const startRace = currentPage * racesPerPage + 1;
-  const endRace = Math.min((currentPage + 1) * racesPerPage, totalRaces);
-
   const currentTeams = externalSelectedTeams || selectedTeams;
 
   return (
@@ -186,7 +176,6 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-xl font-semibold">Race Points Distribution</h3>
-          
         </div>
         {!externalSelectedTeams && (
           <TeamFilter
@@ -208,8 +197,8 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
                     <CardHeader className={isMobile ? 'p-3' : 'p-4'}>
                       <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
                         {pair.length === 2 
-                          ? `Points distribution for ${raceLocations[pair[0]-1] || `Race ${pair[0]}`} and ${raceLocations[pair[1]-1] || `Race ${pair[1]}`}`
-                          : `Points distribution for ${raceLocations[pair[0]-1] || `Race ${pair[0]}`}`
+                          ? `Points distribution for ${raceLocations[pair[0]] || `Race ${pair[0] + 1}`} and ${raceLocations[pair[1]] || `Race ${pair[1] + 1}`}`
+                          : `Points distribution for ${raceLocations[pair[0]] || `Race ${pair[0] + 1}`}`
                         }
                       </p>
                     </CardHeader>
@@ -217,8 +206,8 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
                       <div className={`${isMobile ? 'h-[350px]' : 'h-[500px]'}`}>
                         <SimpleRaceChart
                           year={year}
-                          startRace={pair[0]}
-                          endRace={pair.length === 2 ? pair[1] : pair[0]}
+                          startRace={pair[0] + 1}
+                          endRace={pair.length === 2 ? pair[1] + 1 : pair[0] + 1}
                           selectedTeams={currentTeams}
                         />
                       </div>
@@ -238,7 +227,7 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => api?.scrollPrev()}
-                disabled={!api}
+                disabled={currentPage === 0}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -262,7 +251,7 @@ export function RacePointsCarousel({ year, externalSelectedTeams }: RacePointsCa
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => api?.scrollNext()}
-                disabled={!api}
+                disabled={currentPage === count - 1}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>

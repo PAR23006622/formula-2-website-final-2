@@ -17,7 +17,7 @@ import {
 
 // Interface matching the actual JSON data structure
 interface RawStanding {
-  driverName: string;
+  teamName: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
@@ -45,11 +45,11 @@ interface YearData {
 }
 
 // Process the raw data to match our expected format
-const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+const typedTeamStandings = (teamStandings as unknown as RawYearData[]).map(yearData => ({
   year: yearData.year,
   title: yearData.title,
   standings: yearData.standings.map((standing, index) => ({
-    teamName: standing.driverName,
+    teamName: standing.teamName,
     totalPoints: standing.totalPoints,
     sprintRaceScores: standing.sprintRaceScores.map(Number),
     featureRaceScores: standing.featureRaceScores.map(Number),

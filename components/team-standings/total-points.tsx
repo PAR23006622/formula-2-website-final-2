@@ -9,7 +9,7 @@ import { TeamFilter } from "./team-filter";
 
 // Interface matching the actual JSON data structure
 interface RawStanding {
-  driverName: string;
+  teamName: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
@@ -37,11 +37,11 @@ interface YearData {
 }
 
 // Process the raw data to match our expected format
-const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+const typedTeamStandings = (teamStandings as unknown as RawYearData[]).map(yearData => ({
   year: yearData.year,
   title: yearData.title,
   standings: yearData.standings.map((standing, index) => ({
-    teamName: standing.driverName,
+    teamName: standing.teamName,
     totalPoints: standing.totalPoints,
     sprintRaceScores: standing.sprintRaceScores.map(Number),
     featureRaceScores: standing.featureRaceScores.map(Number),
@@ -76,7 +76,6 @@ export function TotalPointsChart({ year, showFilter = true }: { year: string, sh
       setAllTeams(teamNames);
       setSelectedTeams(new Set(teamNames));
     } catch (error) {
-      console.error('Error initializing data:', error);
       setError('Failed to initialize data');
     }
   }, [year]);
@@ -99,32 +98,34 @@ export function TotalPointsChart({ year, showFilter = true }: { year: string, sh
     );
   };
 
-  // Prepare chart data
+  // Prepare chart data with debug logging
   const data = useMemo(() => {
     try {
       const yearData = typedTeamStandings.find(d => d.year.toString() === year);
-      if (!yearData) return null;
-      
-      const teamNames = yearData.standings.map(team => team.teamName);
-      const colorMap = createTeamColorMap(teamNames);
+      if (!yearData) {
+        setError('No year data found');
+        return null;
+      }
       
       const filteredTeams = yearData.standings.filter(team => 
         selectedTeams.has(team.teamName)
       );
       
+      const teamNames = filteredTeams.map(team => team.teamName);
+      const colorMap = createTeamColorMap(teamNames);
+      
       return {
-        labels: filteredTeams.map(team => team.teamName),
+        labels: teamNames,
         datasets: [{
           label: 'Total Points',
           data: filteredTeams.map(team => parseInt(team.totalPoints)),
-          backgroundColor: filteredTeams.map(team => colorMap[team.teamName]),
-          borderColor: filteredTeams.map(team => colorMap[team.teamName]),
+          backgroundColor: teamNames.map(team => colorMap[team]),
+          borderColor: teamNames.map(team => colorMap[team]),
           borderWidth: 1,
           borderRadius: 4,
         }]
       };
     } catch (error) {
-      console.error('Error preparing chart data:', error);
       setError('Failed to prepare chart data');
       return null;
     }
@@ -204,7 +205,7 @@ export function TotalPointsChart({ year, showFilter = true }: { year: string, sh
   }
 
   if (!data) {
-    return <div className="text-center">Loading...</div>;
+    return <div className="text-center">Loading data...</div>;
   }
 
   return (
@@ -214,8 +215,22 @@ export function TotalPointsChart({ year, showFilter = true }: { year: string, sh
           <TeamFilter
             teams={allTeams}
             selectedTeams={selectedTeams}
-            onToggleTeam={toggleTeam}
-            onToggleAll={toggleAllTeams}
+            onToggleTeam={(team) => {
+              setSelectedTeams(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(team)) {
+                  newSet.delete(team);
+                } else {
+                  newSet.add(team);
+                }
+                return newSet;
+              });
+            }}
+            onToggleAll={() => {
+              setSelectedTeams(prev => 
+                prev.size === allTeams.length ? new Set() : new Set(allTeams)
+              );
+            }}
           />
         </div>
       )}

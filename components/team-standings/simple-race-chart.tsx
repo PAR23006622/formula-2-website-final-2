@@ -2,7 +2,7 @@
 
 import { Bar } from "react-chartjs-2";
 import { useTheme } from "next-themes";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import calendarData from '@/results/calendar.json';
 import teamStandings from '@/results/team-standings.json';
 import { createTeamColorMap } from "@/lib/chart-colors";
@@ -10,7 +10,7 @@ import "@/lib/chart-config"; // Import chart configuration
 
 // Interface matching the actual JSON data structure
 interface RawStanding {
-  driverName: string;
+  teamName: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
@@ -57,11 +57,11 @@ interface SimpleRaceChartProps {
 }
 
 // Process the raw data to match our expected format
-const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+const typedTeamStandings = (teamStandings as unknown as RawYearData[]).map(yearData => ({
   year: yearData.year,
   title: yearData.title,
   standings: yearData.standings.map((standing, index) => ({
-    teamName: standing.driverName,
+    teamName: standing.teamName,
     totalPoints: standing.totalPoints,
     sprintRaceScores: standing.sprintRaceScores.map(Number),
     featureRaceScores: standing.featureRaceScores.map(Number),
@@ -78,6 +78,7 @@ export function SimpleRaceChart({
   selectedTeams
 }: SimpleRaceChartProps) {
   const { theme } = useTheme();
+  const [error, setError] = useState<string | null>(null);
   
   // Get race locations from calendar
   const raceLocations = useMemo(() => {
@@ -88,78 +89,45 @@ export function SimpleRaceChart({
   
   // Create chart data from team standings
   const data = useMemo(() => {
-    // Find the year data
-    const yearData = typedTeamStandings.find(d => d.year.toString() === year);
-    if (!yearData) return null;
-    
-    // Get team names and create color map
-    const teamNames = yearData.standings.map(team => team.teamName);
-    const colorMap = createTeamColorMap(teamNames);
-    
-    // Create datasets for each team
-    const datasets = yearData.standings
-      .map(team => {
-        // Scores are already numbers from our data transformation
-        const sprintPoints = team.sprintRaceScores;
-        const featurePoints = team.featureRaceScores;
-        
-        // Calculate total points for each race
-        const totalPoints = sprintPoints.map((sprint: number, index: number) => 
-          sprint + (featurePoints[index] || 0)
-        );
-        
-        // Slice to get only the races we want to display
-        const slicedPoints = totalPoints.slice(startRace - 1, endRace);
-        
-        // Check if team has any points in the selected races
-        const hasPoints = slicedPoints.some((points: number) => points > 0);
-        
-        // Check if team is selected
-        const isSelected = selectedTeams ? selectedTeams.has(team.teamName) : true;
-        
-        // Skip this team if it has no points or isn't selected
-        if (!hasPoints || !isSelected) return null;
-        
-        return {
-          label: team.teamName,
-          data: slicedPoints.map((points: number) => points || null),
-          backgroundColor: colorMap[team.teamName],
-          borderColor: colorMap[team.teamName],
-          borderWidth: 1,
-          borderRadius: 4,
-          spanGaps: true
-        };
-      })
-      .filter((dataset): dataset is NonNullable<typeof dataset> => dataset !== null);
+    try {
+      const yearData = typedTeamStandings.find(d => d.year.toString() === year);
+      if (!yearData) return null;
 
-    // Get the race locations for the selected range
-    const selectedLocations = raceLocations.slice(startRace - 1, endRace);
-    
-    // Find races where at least one team scored points
-    const racesWithPoints = selectedLocations.map((location, index) => ({
-      location,
-      hasPoints: datasets.some(dataset => {
-        const value = dataset.data[index];
-        return typeof value === 'number' && value > 0;
-      })
-    })).filter(race => race.hasPoints);
-
-    // Update datasets to only include races with points
-    const filteredDatasets = datasets.map(dataset => ({
-      ...dataset,
-      data: dataset.data.filter((_: any, index: number) => 
-        datasets.some(d => {
-          const points = d.data[index];
-          return typeof points === 'number' && points > 0;
-        })
-      )
-    }));
-
-    return {
-      labels: racesWithPoints.map(race => race.location),
-      datasets: filteredDatasets
-    };
-  }, [year, startRace, endRace, raceLocations, selectedTeams]);
+      const teamNames = yearData.standings.map(team => team.teamName);
+      const colorMap = createTeamColorMap(teamNames);
+      
+      const datasets = yearData.standings
+        .filter(team => selectedTeams ? selectedTeams.has(team.teamName) : true)
+        .map(team => {
+          const sprintPoints = team.sprintRaceScores;
+          const featurePoints = team.featureRaceScores;
+          
+          const totalPoints = sprintPoints.map((sprint: number, index: number) => 
+            (sprint || 0) + (featurePoints[index] || 0)
+          );
+          
+          const slicedPoints = totalPoints.slice(startRace - 1, endRace);
+          
+          return {
+            label: team.teamName,
+            data: slicedPoints,
+            backgroundColor: colorMap[team.teamName],
+            borderColor: colorMap[team.teamName],
+            borderWidth: 1,
+            borderRadius: 4,
+            spanGaps: true
+          };
+        });
+      
+      return {
+        labels: raceLocations.slice(startRace - 1, endRace),
+        datasets
+      };
+    } catch (error) {
+      setError('Failed to create chart data');
+      return null;
+    }
+  }, [year, startRace, endRace, selectedTeams, raceLocations]);
   
   // Create chart options
   const options = useMemo(() => {
@@ -228,8 +196,12 @@ export function SimpleRaceChart({
     };
   }, [theme]);
   
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
+
   if (!data) {
-    return <div className="flex items-center justify-center h-full">No data available for selected year</div>;
+    return <div className="text-center">Loading data...</div>;
   }
   
   return (

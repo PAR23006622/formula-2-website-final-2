@@ -11,7 +11,7 @@ import calendarData from '@/results/calendar.json';
 
 // Interface for raw data from JSON
 interface RawStanding {
-  driverName: string;
+  teamName: string;
   totalPoints: string;
   sprintRaceScores: string[];
   featureRaceScores: string[];
@@ -60,11 +60,11 @@ interface RacePointsDistributionChartProps {
 }
 
 // Process the raw data to match our expected format
-const typedTeamStandings = (teamStandings as RawYearData[]).map(yearData => ({
+const typedTeamStandings = (teamStandings as unknown as RawYearData[]).map(yearData => ({
   year: yearData.year,
   title: yearData.title,
   standings: yearData.standings.map((standing, index) => ({
-    teamName: standing.driverName, // Map driverName to teamName
+    teamName: standing.teamName,
     totalPoints: standing.totalPoints,
     sprintRaceScores: standing.sprintRaceScores.map(Number),
     featureRaceScores: standing.featureRaceScores.map(Number),
@@ -118,14 +118,12 @@ export function RacePointsDistributionChart({
         setSelectedTeams(new Set(teamNames));
       }
     } catch (error) {
-      console.error('Error initializing data:', error);
       setError('Failed to initialize data');
     }
   }, [year, externalSelectedTeams]);
 
   const toggleTeam = useCallback((teamName: string) => {
     if (externalSelectedTeams) return; // Don't modify if using external selection
-    
     setSelectedTeams(prev => {
       const newSet = new Set(prev);
       if (newSet.has(teamName)) {
@@ -139,51 +137,50 @@ export function RacePointsDistributionChart({
 
   const toggleAllTeams = useCallback(() => {
     if (externalSelectedTeams) return; // Don't modify if using external selection
-    
     setSelectedTeams(prev => 
       prev.size === allTeams.length ? new Set() : new Set(allTeams)
     );
   }, [allTeams, externalSelectedTeams]);
 
-  // Prepare chart data
+  // Prepare chart data with debug logging
   const data = useMemo(() => {
     try {
       const yearData = typedTeamStandings.find(d => d.year.toString() === year);
-      if (!yearData) return null;
+      if (!yearData) {
+        setError('No year data found');
+        return null;
+      }
 
       const teamNames = yearData.standings.map(team => team.teamName);
       const colorMap = createTeamColorMap(teamNames);
-      const currentSelectedTeams = externalSelectedTeams || selectedTeams;
+      const effectiveTeams = externalSelectedTeams || selectedTeams;
       
-      const datasets = yearData.standings.map(team => {
-        const sprintPoints = team.sprintRaceScores.map(Number);
-        const featurePoints = team.featureRaceScores.map(Number);
-        
-        const totalPoints = sprintPoints.map((sprint, index) => 
-          sprint + (featurePoints[index] || 0)
-        );
-        
-        const slicedPoints = totalPoints.slice(startRace - 1, endRace).map(points => 
-          points === 0 ? null : points
-        );
+      const datasets = yearData.standings
+        .filter(team => effectiveTeams.has(team.teamName))
+        .map(team => {
+          const sprintPoints = team.sprintRaceScores;
+          const featurePoints = team.featureRaceScores;
+          const totalPoints = sprintPoints.map((sprint, index) => 
+            (sprint || 0) + (featurePoints[index] || 0)
+          );
+          
+          const slicedPoints = totalPoints.slice(startRace - 1, endRace);
 
-        return {
-          label: team.teamName,
-          data: slicedPoints,
-          backgroundColor: colorMap[team.teamName],
-          borderColor: colorMap[team.teamName],
-          borderWidth: 1,
-          borderRadius: 4,
-          hidden: !currentSelectedTeams.has(team.teamName)
-        };
-      });
-      
+          return {
+            label: team.teamName,
+            data: slicedPoints,
+            backgroundColor: colorMap[team.teamName],
+            borderColor: colorMap[team.teamName],
+            borderWidth: 1,
+            borderRadius: 4
+          };
+        });
+
       return {
         labels: raceLocations.slice(startRace - 1, endRace),
         datasets
       };
     } catch (error) {
-      console.error('Error preparing chart data:', error);
       setError('Failed to prepare chart data');
       return null;
     }
@@ -291,13 +288,13 @@ export function RacePointsDistributionChart({
   }
 
   if (!data) {
-    return <div className="text-center">Loading...</div>;
+    return <div className="text-center">Loading data...</div>;
   }
 
   return (
     <div className="w-full h-full relative">
-      {!externalSelectedTeams && (
-        <div className="absolute z-10 top-10 right-10 pt-4 pr-4">
+      {useTopRightFilter && (
+        <div className="absolute top-2 right-2 z-10">
           <TeamFilter
             teams={allTeams}
             selectedTeams={selectedTeams}
